@@ -5,10 +5,10 @@ const About: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const storeImages = [
-    "https://images.pexels.com/photos/3205735/pexels-photo-3205735.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/2116475/pexels-photo-2116475.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/1119796/pexels-photo-1119796.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/2116475/pexels-photo-2116475.jpeg?auto=compress&cs=tinysrgb&w=800"
+    "public/IMG/IMG-TIENDA.jpeg",
+    "public/IMG/IMG-TIENDA(2).webp",
+    "public/IMG/IMG-TIENDA(3).webp",
+    "public/IMG/IMG-TIENDA(2).webp",
   ];
 
   const nextImage = () => {
@@ -82,7 +82,7 @@ const About: React.FC = () => {
               Tu Confianza es Nuestra Prioridad
             </h3>
             <p className="text-white text-lg font-bold mb-6">
-              En MotoCentral, entendemos que comprar una motocicleta es una decisión importante. 
+              En ONE WAY MOTORS, entendemos que comprar una motocicleta es una decisión importante. 
               Por eso, nos comprometemos a brindarte la mejor experiencia de compra, 
               desde la selección hasta el servicio post-venta.
             </p>

@@ -64,7 +64,7 @@ const Footer: React.FC = () => {
                 <Bike className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-white tracking-wide">MotoCentral</h3>
+                <h3 className="text-2xl font-black text-white tracking-wide">ONE WAY MOTORS </h3>
                 <p className="text-lg text-red-400 font-bold">Motos Nuevas y Usadas</p>
               </div>
             </button>
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-red-600 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-white text-lg font-bold">
-            © 2024 MotoCentral. Todos los derechos reservados.
+            © 2024 ONE WAY MOTORS. Todos los derechos reservados.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <button 

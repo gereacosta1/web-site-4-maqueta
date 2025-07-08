@@ -104,29 +104,29 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
   };
 
   const handleGoogleMaps = () => {
-    window.open('https://maps.google.com/?q=Av.+Revolución+1234,+Col.+Centro,+Ciudad+de+México,+CDMX', '_blank');
+    window.open('https://maps.app.goo.gl/TVEdNoY3SyXYKEyU8', '_blank');
   };
 
   const contactInfo = [
     {
       icon: MapPin,
       title: "Dirección",
-      content: "Av. Revolución 1234, Col. Centro, Ciudad de México, CDMX 06000"
+      content: "297 Northwest 54th Street, Miami, FL 33127"
     },
     {
       icon: Phone,
       title: "Teléfono",
-      content: "+52 55 1234 5678"
+      content: "+54 9 3814 65-5651"
     },
     {
       icon: Mail,
       title: "Email",
-      content: "info@motocentral.com.mx"
+      content: "info@motocentral.com"
     },
     {
       icon: Clock,
       title: "Horarios",
-      content: "Lun - Vie: 9:00 AM - 7:00 PM\nSáb: 9:00 AM - 5:00 PM"
+      content: "Lun - Sab: 10:00 AM - 7:30 PM\n Dom: 10:00 AM - 6:00 PM"
     }
   ];
 

@@ -12,7 +12,7 @@ interface MotorcycleModalProps {
 const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, onPhoneCall, onWhatsApp }) => {
   const handleFinancing = () => {
     const message = encodeURIComponent(`¡Hola! Me interesa información sobre financiamiento para la ${motorcycle.name} ${motorcycle.year}. ¿Qué opciones tienen disponibles?`);
-    const whatsappUrl = `https://wa.me/525512345678?text=${message}`;
+    const whatsappUrl = `https://wa.me/+54 9 3814 65-5651?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -120,7 +120,7 @@ const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, 
                 <div className="bg-red-600/90 backdrop-blur-sm p-6 rounded-lg border border-red-600/50">
                   <p className="text-white text-lg font-bold mb-2">Precio</p>
                   <p className="text-4xl font-black text-white mb-4">
-                    ${motorcycle.price.toLocaleString()} <span className="text-xl">MXN</span>
+                    ${motorcycle.price.toLocaleString()} <span className="text-xl">$</span>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button 
@@ -132,7 +132,7 @@ const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, 
                     </button>
                     <button 
                       onClick={handleFinancing}
-                      className="border-2 border-red-600 text-red-500 px-6 py-3 rounded-lg text-lg font-black hover:bg-red-600 hover:text-white transition-all duration-300"
+                      className="border-2 border-white-600 text-white-500 px-6 py-3 rounded-lg text-lg font-black hover:bg-black-600 hover:text-white transition-all duration-300"
                     >
                       Financiamiento
                     </button>

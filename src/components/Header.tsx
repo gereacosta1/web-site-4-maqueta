@@ -34,10 +34,14 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300"
           >
             <div className="bg-red-600 p-2 rounded-lg">
-              <Bike className="w-6 h-6 text-white" />
+              <img 
+                  src="/IMG/One_Way_Motors_Logo-1.png" 
+                  alt="Logo de One Way Motors"
+                  className="w-10 h-10 object-contain rounded-lg"
+                  />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white tracking-wide">MotoCentral</h1>
+              <h1 className="text-2xl font-bold text-white tracking-wide">ONE WAY MOTORS</h1>
               <p className="text-sm text-red-400 font-medium">Motos Nuevas y Usadas</p>
             </div>
           </button>
@@ -64,14 +68,14 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
               className="flex items-center space-x-2 hover:text-red-400 transition-colors duration-300"
             >
               <Phone className="w-4 h-4 text-red-500" />
-              <span className="text-lg font-semibold">+52 55 1234 5678</span>
+              <span className="text-lg font-semibold">+54 9 3814 65-5651</span>
             </button>
             <button 
               onClick={() => onNavigate('contacto')}
               className="flex items-center space-x-2 hover:text-red-400 transition-colors duration-300"
             >
               <MapPin className="w-4 h-4 text-red-500" />
-              <span className="text-lg font-semibold">CDMX</span>
+              <span className="text-lg font-semibold">MIAMI</span>
             </button>
           </div>
 
