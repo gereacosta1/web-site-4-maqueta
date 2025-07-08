@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Bike, Phone, MapPin } from 'lucide-react';
+import { Menu, X, Phone, MapPin } from 'lucide-react';
 
 interface HeaderProps {
   activeSection: string;
