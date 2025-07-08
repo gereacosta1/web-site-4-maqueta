@@ -17,8 +17,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 85000,
-      image: "/IMG/MOTO-MISAKI-GN-150.JPEG",
+      price: 0,
+      image: "/IMG/MOTO-MISAKI-GN-150.jpeg",
       condition: "Nueva",
       engine: "321cc",
       featured: true,
@@ -31,8 +31,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "falcon",
       model: "falcon 200cc",
       year: 2023,
-      price: 120000,
-      image: "/IMG/FALCON-200CC.jpeg",
+      price: 0,
+      image: "/IMG/FALCON-200cc.jpeg",
       condition: "Nueva",
       engine: "649cc",
       description: "La falcon 200cc combina estilo naked con tecnología avanzada. Motor de 4 cilindros en línea para máximo rendimiento.",
@@ -44,7 +44,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TANK",
       model: "TANK 200",
       year: 2022,
-      price: 65000,
+      price: 0,
       image: "/IMG/MOTO-TANK-200.jpeg",
       condition: "Usada",
       engine: "399cc",
@@ -58,7 +58,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "Vitacc",
       model: "G310R",
       year: 2024,
-      price: 95000,
+      price: 0,
       image: "/IMG/MOTO-XMT-250.jpeg",
       condition: "Nueva",
       engine: "313cc",
@@ -72,7 +72,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "SCOOTER ELECTRICO",
       year: 2021,
-      price: 180000,
+      price: 0,
       image: "/IMG/Scooter-electrico(1).jpeg",
       condition: "Usada",
       engine: "821cc",
@@ -86,7 +86,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TITAN",
       model: "TITAN 250",
       year: 2023,
-      price: 78000,
+      price: 0,
       image: "/IMG/TITAN-250.jpeg",
       condition: "Nueva",
       engine: "373cc",
@@ -99,7 +99,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "FLASH",
       model: "FLASH 50cc",
       year: 2021,
-      price: 180000,
+      price: 0,
       image: "/IMG/FLASH 50cc.jpeg",
       condition: "Usada",
       engine: "821cc",
@@ -113,7 +113,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "ELECTRIC SCOOTER",
       year: 2021,
-      price: 180000,
+      price: 0,
       image: "/IMG/ELECTRIC SCOOTER.jpeg",
       condition: "Usada",
       engine: "821cc",
@@ -127,8 +127,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 85000,
-      image: "/IMG/MOTO-MISAKI-GN-150-(3).JPEG",
+      price: 0,
+      image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
       condition: "Usada",
       engine: "321cc",
       featured: true,
@@ -267,12 +267,14 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-3xl font-black text-white">
-                      ${moto.price.toLocaleString()}
+                  {/* <div>
+                    {!hidePrices && (
+                   <p className="text-3xl font-black text-white">
+                    ${moto.price.toLocaleString()}
                     </p>
-                    <p className="text-lg text-white font-bold">MXN</p>
-                  </div>
+              )}
+                    <p className="text-lg text-white font-bold"></p>
+                  </div> */}
                   <button 
                     onClick={() => onViewDetails(moto)}
                     className="bg-black/90 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-lg text-lg font-black hover:bg-white hover:text-black transition-all duration-300 flex items-center space-x-2 transform hover:scale-105"

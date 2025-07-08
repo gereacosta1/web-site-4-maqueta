@@ -118,9 +118,9 @@ const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, 
 
                 {/* Price */}
                 <div className="bg-red-600/90 backdrop-blur-sm p-6 rounded-lg border border-red-600/50">
-                  <p className="text-white text-lg font-bold mb-2">Precio</p>
+                  {/* <p className="text-white text-lg font-bold mb-2">Precio</p> */}
                   <p className="text-4xl font-black text-white mb-4">
-                    ${motorcycle.price.toLocaleString()} <span className="text-xl">$</span>
+                    {/* ${motorcycle.price.toLocaleString()} <span className="text-xl">$</span> */}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button 
@@ -132,7 +132,7 @@ const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, 
                     </button>
                     <button 
                       onClick={handleFinancing}
-                      className="border-2 border-white-600 text-white-500 px-6 py-3 rounded-lg text-lg font-black hover:bg-black-600 hover:text-white transition-all duration-300"
+                      className="bg-black/80 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-lg text-lg font-black hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center space-x-2"
                     >
                       Financiamiento
                     </button>

@@ -61,7 +61,11 @@ const Footer: React.FC = () => {
               className="flex items-center space-x-2 mb-4 hover:scale-105 transition-transform duration-300"
             >
               <div className="bg-red-600 p-2 rounded-lg">
-                <Bike className="w-6 h-6 text-white" />
+                 <img 
+                  src="/IMG/One_Way_Motors_Logo-1.png" 
+                  alt="Logo de One Way Motors"
+                  className="w-10 h-10 object-contain rounded-lg"
+                  />
               </div>
               <div>
                 <h3 className="text-2xl font-black text-white tracking-wide">ONE WAY MOTORS </h3>

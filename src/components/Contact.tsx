@@ -174,7 +174,7 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
 
             {/* Map Placeholder */}
             <div className="bg-red-600/90 backdrop-blur-md border border-red-600/50 rounded-lg p-8 text-center shadow-2xl">
-              <MapPin className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <MapPin className="w-12 h-12 text-white-500 mx-auto mb-4" />
               <h4 className="text-xl font-black text-white mb-2">
                 Visítanos en Nuestra Tienda
               </h4>
