@@ -37,13 +37,13 @@ function App() {
 
   // Función para manejar llamadas telefónicas
   const handlePhoneCall = () => {
-    window.open('tel:+525512345678', '_self');
+    window.open('tel:+54 9 3814 65-5651', '_self');
   };
 
   // Función para abrir WhatsApp
   const handleWhatsApp = () => {
     const message = encodeURIComponent('¡Hola! Me interesa información sobre sus motocicletas. ¿Podrían ayudarme?');
-    const whatsappUrl = `https://wa.me/525512345678?text=${message}`;
+    const whatsappUrl = `https://wa.me/+5493814655651?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 

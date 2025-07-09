@@ -1,7 +1,0 @@
-MAQUETA 1:https://motosrenta.netlify.app
-MAQUETA 2:https://scooter-agency-motos2.netlify.app
-MAQUETA 3:https://scooter-agency-motos3.netlify.app
-
-
-
-formulario de google a completar:https://forms.gle/eHQJXptGeUNt5w3f8

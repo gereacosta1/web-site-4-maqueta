@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
   ];
 
   const handlePhoneCall = () => {
-    window.open('tel:+525512345678', '_self');
+    window.open('tel:+54 9 3814655651', '_self');
   };
 
   const handleLogoClick = () => {

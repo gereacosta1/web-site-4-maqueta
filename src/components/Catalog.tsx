@@ -135,6 +135,20 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       description: "La MISAKI GN 150 es perfecta para principiantes y riders experimentados. Con su motor de 321cc, ofrece la potencia ideal para la ciudad y carretera.",
       features: ["ABS", "Frenos de disco", "Tablero digital", "LED", "Arranque eléctrico"]
     },
+    {
+      id: 10,
+      name: "MISAKI GN 150",
+      brand: "MISAKI",
+      model: "GN 150",
+      year: 2024,
+      price: 0,
+      image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
+      condition: "Usada",
+      engine: "321cc",
+      featured: true,
+      description: "La MISAKI GN 150 es perfecta para principiantes y riders experimentados. Con su motor de 321cc, ofrece la potencia ideal para la ciudad y carretera.",
+      features: ["ABS", "Frenos de disco", "Tablero digital", "LED", "Arranque eléctrico"]
+    },
   ];
 
   const filteredMotorcycles = motorcycles.filter(moto => {

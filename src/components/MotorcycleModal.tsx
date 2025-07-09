@@ -12,7 +12,7 @@ interface MotorcycleModalProps {
 const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, onPhoneCall, onWhatsApp }) => {
   const handleFinancing = () => {
     const message = encodeURIComponent(`¡Hola! Me interesa información sobre financiamiento para la ${motorcycle.name} ${motorcycle.year}. ¿Qué opciones tienen disponibles?`);
-    const whatsappUrl = `https://wa.me/+54 9 3814 65-5651?text=${message}`;
+    const whatsappUrl = `https://wa.me/+5493814655651?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 

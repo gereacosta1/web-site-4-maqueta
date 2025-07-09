@@ -6,8 +6,11 @@ const About: React.FC = () => {
   
   const storeImages = [
     "/IMG/IMG-TIENDA.jpeg",
+    "/IMG/MOTOS-JUNTAS.jpeg",
     "/IMG/IMG-TIENDA(2).webp",
+    "/IMG/MOTOS-JUNTAS (2).jpeg",
     "/IMG/IMG-TIENDA(3).webp",
+    "/IMG/MOTOS-JUNTAS (1).jpeg",
     "/IMG/IMG-TIENDA(2).webp",
   ];
 
