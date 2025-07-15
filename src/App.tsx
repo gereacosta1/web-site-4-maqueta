@@ -37,19 +37,19 @@ function App() {
 
   // Función para manejar llamadas telefónicas
   const handlePhoneCall = () => {
-    window.open('tel:+54 9 3814 65-5651', '_self');
+    window.open('tel:+1 (786) 253-0995', '_self');
   };
 
   // Función para abrir WhatsApp
   const handleWhatsApp = () => {
     const message = encodeURIComponent('¡Hola! Me interesa información sobre sus motocicletas. ¿Podrían ayudarme?');
-    const whatsappUrl = `https://wa.me/+5493814655651?text=${message}`;
+    const whatsappUrl = `https://wa.me/+17862530995?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   // Función para abrir email
   const handleEmail = () => {
-    window.open('mailto:info@motocentral.com.mx?subject=Consulta sobre motocicletas', '_self');
+    window.open('mailto:onewaymotors2@gmail.com.mx?subject=Consulta sobre motocicletas', '_self');
   };
 
   return (

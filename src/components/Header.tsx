@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
   ];
 
   const handlePhoneCall = () => {
-    window.open('tel:+54 9 3814655651', '_self');
+    window.open('tel:+17862530995', '_self');
   };
 
   const handleLogoClick = () => {
@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
               className="flex items-center space-x-2 hover:text-red-400 transition-colors duration-300"
             >
               <Phone className="w-4 h-4 text-red-500" />
-              <span className="text-lg font-semibold">+54 9 3814 65-5651</span>
+              <span className="text-lg font-semibold">+1(786)2530995</span>
             </button>
             <button 
               onClick={() => onNavigate('contacto')}

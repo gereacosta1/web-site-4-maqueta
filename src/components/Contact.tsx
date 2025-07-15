@@ -116,12 +116,12 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
     {
       icon: Phone,
       title: "Teléfono",
-      content: "+54 9 3814 65-5651"
+      content: "+1(786)2530995"
     },
     {
       icon: Mail,
       title: "Email",
-      content: "info@motocentral.com"
+      content: "onewaymotors2@gmail.com"
     },
     {
       icon: Clock,
@@ -255,7 +255,7 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
                   value={formData.email}
                   onChange={handleInputChange}
                   className={`w-full bg-red-600/90 backdrop-blur-md border border-red-600/50 text-white rounded-lg px-4 py-3 text-lg font-bold placeholder-white/70 focus:outline-none focus:ring-2 ${errors.email ? 'focus:ring-red-300' : 'focus:ring-white'}`}
-                  placeholder="tu@email.com"
+                  placeholder="onewaymotors2@gmail.com"
                   maxLength={50}
                 />
                 {errors.email && <p className="text-red-300 text-sm mt-1">{errors.email}</p>}
@@ -272,7 +272,7 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={`w-full bg-red-600/90 backdrop-blur-md border border-red-600/50 text-white rounded-lg px-4 py-3 text-lg font-bold placeholder-white/70 focus:outline-none focus:ring-2 ${errors.phone ? 'focus:ring-red-300' : 'focus:ring-white'}`}
-                  placeholder="+52 55 1234 5678"
+                  placeholder="+17862530995"
                   maxLength={15}
                 />
                 {errors.phone && <p className="text-red-300 text-sm mt-1">{errors.phone}</p>}
