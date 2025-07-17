@@ -7,7 +7,7 @@ interface CatalogProps {
 }
 
 const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
-  const [filter, setFilter] = useState<'all' | 'nueva' | 'usada'>('all');
+  const [filter, setFilter] = useState<'all' | 'nueva'>('all');
   const [favorites, setFavorites] = useState<number[]>([]);
 
   const motorcycles: Motorcycle[] = [
@@ -46,7 +46,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2022,
       price: 0,
       image: "/IMG/MOTO-TANK-200.jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "399cc",
       mileage: 8500,
       description: "TANK 200 en excelente estado. Perfecta para quienes buscan deportividad y eficiencia en combustible.",
@@ -74,7 +74,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2021,
       price: 0,
       image: "/IMG/Scooter-electrico(1).jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "821cc",
       mileage: 12000,
       description: "SCOOTER ELECTRICO, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
@@ -101,7 +101,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2021,
       price: 0,
       image: "/IMG/FLASH 50cc.jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "821cc",
       mileage: 12000,
       description: "Flash 50cc, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
@@ -115,7 +115,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2021,
       price: 0,
       image: "/IMG/ELECTRIC SCOOTER.jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "821cc",
       mileage: 12000,
       description: "ELECTRIC SCOOTER, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
@@ -129,7 +129,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2024,
       price: 0,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "321cc",
       featured: true,
       description: "La MISAKI GN 150 es perfecta para principiantes y riders experimentados. Con su motor de 321cc, ofrece la potencia ideal para la ciudad y carretera.",
@@ -143,7 +143,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       year: 2024,
       price: 0,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
-      condition: "Usada",
+      condition: "Nueva",
       engine: "321cc",
       featured: true,
       description: "La MISAKI GN 150 es perfecta para principiantes y riders experimentados. Con su motor de 321cc, ofrece la potencia ideal para la ciudad y carretera.",
@@ -200,7 +200,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
             >
               Nuevas
             </button>
-            <button
+            {/* <button
               onClick={() => setFilter('usada')}
               className={`px-8 py-3 rounded-md text-lg font-black transition-all duration-300 ${
                 filter === 'usada' 
@@ -209,7 +209,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
               }`}
             >
               Usadas
-            </button>
+            </button> */}
           </div>
         </div>
 
