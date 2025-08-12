@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Eye, Fuel, Gauge, Calendar } from 'lucide-react';
 import { Motorcycle } from '../App';
 
+
 interface CatalogProps {
   onViewDetails: (motorcycle: Motorcycle) => void;
 }
@@ -17,7 +18,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 0,
+      price: 150,
       image: "/IMG/MOTO-MISAKI-GN-150.jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -31,7 +32,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "falcon",
       model: "falcon 200cc",
       year: 2023,
-      price: 0,
+      price: 100,
       image: "/IMG/FALCON-200cc.jpeg",
       condition: "Nueva",
       engine: "649cc",
@@ -44,7 +45,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TANK",
       model: "TANK 200",
       year: 2022,
-      price: 0,
+      price: 20,
       image: "/IMG/MOTO-TANK-200.jpeg",
       condition: "Nueva",
       engine: "399cc",
@@ -58,7 +59,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "Vitacc",
       model: "G310R",
       year: 2024,
-      price: 0,
+      price: 20,
       image: "/IMG/MOTO-XMT-250.jpeg",
       condition: "Nueva",
       engine: "313cc",
@@ -72,7 +73,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "SCOOTER ELECTRICO",
       year: 2021,
-      price: 0,
+      price: 40,
       image: "/IMG/Scooter-electrico(1).jpeg",
       condition: "Nueva",
       engine: "821cc",
@@ -86,7 +87,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TITAN",
       model: "TITAN 250",
       year: 2023,
-      price: 0,
+      price: 40,
       image: "/IMG/TITAN-250.jpeg",
       condition: "Nueva",
       engine: "373cc",
@@ -99,7 +100,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "FLASH",
       model: "FLASH 50cc",
       year: 2021,
-      price: 0,
+      price: 40,
       image: "/IMG/FLASH 50cc.jpeg",
       condition: "Nueva",
       engine: "821cc",
@@ -113,7 +114,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "ELECTRIC SCOOTER",
       year: 2021,
-      price: 0,
+      price: 40,
       image: "/IMG/ELECTRIC SCOOTER.jpeg",
       condition: "Nueva",
       engine: "821cc",
@@ -127,7 +128,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 0,
+      price: 30,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -141,7 +142,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 0,
+      price: 160,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -149,7 +150,81 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       description: "La MISAKI GN 150 es perfecta para principiantes y riders experimentados. Con su motor de 321cc, ofrece la potencia ideal para la ciudad y carretera.",
       features: ["ABS", "Frenos de disco", "Tablero digital", "LED", "Arranque eléctrico"]
     },
+    {
+      id: 11,
+      name: "Electric Bike Pro",
+      brand: "Electric Bike",
+      model: "EBike Pro 2025",
+      year: 2025,
+      price: 400,
+      image: "/IMG/electricBike2.jpeg",
+      condition: "Nueva",
+      engine: "Eléctrico",
+      featured: true,
+      description: "Bicicleta eléctrica de alto rendimiento, ideal para ciudad y trayectos largos.",
+      features: ["Motor eléctrico", "Batería de larga duración", "Tablero digital"]
+    },
+    {
+      id: 12,
+      name: "Electric Bike Urban",
+      brand: "Electric Bike",
+      model: "EBike Urban 2025",
+      year: 2025,
+      price: 200,
+      image: "/IMG/electricBike3.jpeg",
+      condition: "Nueva",
+      engine: "Eléctrico",
+      featured: true,
+      description: "Bicicleta eléctrica urbana, cómoda y eficiente para el día a día.",
+      features: ["Motor eléctrico", "Diseño compacto", "Autonomía extendida"]
+    },
+    {
+      id: 13,
+      name: "Parlante JBL GO",
+      brand: "JBL",
+      model: "GO 2025",
+      year: 2025,
+      price: 100,
+      image: "/IMG/parlanteJBL.jpeg",
+      condition: "Nueva",
+      featured: true,
+      engine:"",
+      description: "Parlante JBL portátil, sonido potente y diseño compacto.",
+      features: ["Bluetooth", "Resistente al agua", "Batería recargable"]
+    },
+    {
+      id: 14,
+      name: "Parlante JBL Flip",
+      brand: "JBL",
+      model: "Flip 2025",
+      year: 2025,
+      price: 70,
+      image: "/IMG/parlanteJBL2.jpeg",
+      condition: "Nueva",
+      engine: "",
+      featured: true,
+      description: "Parlante JBL Flip, ideal para fiestas y exteriores.",
+      features: ["Bluetooth", "Gran autonomía", "Sonido envolvente"]
+    },
+    {
+      id: 15,
+      name: "Ruedas (Neumáticos)",
+      brand: "Universal",
+      model: "Rueda Premium 2025",
+      year: 2025,
+      price: 60,
+      image: "/IMG/ruedas.jpeg",
+      condition: "Nueva",
+      engine: "",
+      featured: true,
+      description: "Neumáticos de alta calidad para motos y bicicletas eléctricas.",
+      features: ["Alta durabilidad", "Agarre superior", "Diseño moderno"]
+    },
   ];
+
+
+  
+
 
   const filteredMotorcycles = motorcycles.filter(moto => {
     if (filter === 'all') return true;
@@ -224,10 +299,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                 <img
                   src={moto.image}
                   alt={moto.name}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  <span className={`px-3 py-1 rounded-full text-sm font-small ${
                     moto.condition === 'Nueva' 
                       ? 'bg-black text-white font-bold' 
                       : 'bg-white text-black font-bold'
@@ -259,7 +334,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                 )}
               </div>
 
-              <div className="p-6">
+              <div className="p-2">
                 <h3 className="text-2xl font-black text-white mb-2">{moto.name}</h3>
                 <p className="text-white mb-4 text-lg font-bold">{moto.brand} • {moto.model}</p>
                 
@@ -268,10 +343,16 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                     <Calendar className="w-4 h-4" />
                     <span className="text-lg font-bold">{moto.year}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-white">
+                  {moto.engine && (
+                    <div className="flex items-center space-x-2 text-white">
+                      <Fuel className="w-4 h-4" />
+                      <span className="text-sm font-semibold">{moto.engine}</span>
+                    </div>
+                  )}
+                  {/* <div className="flex items-center space-x-2 text-white">
                     <Fuel className="w-4 h-4" />
                     <span className="text-lg font-bold">{moto.engine}</span>
-                  </div>
+                  </div> */}
                   {moto.mileage && (
                     <div className="flex items-center space-x-2 text-white col-span-2">
                       <Gauge className="w-4 h-4" />
@@ -280,6 +361,11 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                   )}
                 </div>
 
+                  {moto.price > 0 && (
+                  <p className="text-lg font-black text-white mb-2">
+                    ${moto.price.toLocaleString()}
+                  </p>
+                )}
                 <div className="flex items-center justify-between">
                   {/* <div>
                     {!hidePrices && (
