@@ -28,6 +28,7 @@ export async function handler(event) {
     } = JSON.parse(event.body || '{}');
 
 
+    // 🔒 QA: NO capturar (NO cobra)
     const capture = false;
 
 
