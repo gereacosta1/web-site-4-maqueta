@@ -9,6 +9,10 @@ lerna-debug.log*
 
 node_modules
 dist
+.env
+.env.local
+.env.*.local
+.env.*
 dist-ssr
 *.local
 
@@ -23,3 +27,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Local Netlify folder
+.netlify

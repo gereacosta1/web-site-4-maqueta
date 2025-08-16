@@ -6,6 +6,8 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import MotorcycleModal from './components/MotorcycleModal';
+import AffirmButton from './components/AffirmButton';
+
 
 export interface Motorcycle {
   id: number;
@@ -56,6 +58,8 @@ function App() {
     <div className="min-h-screen bg-black">
       <Header activeSection={activeSection} onNavigate={scrollToSection} />
       <Hero onNavigate={scrollToSection} />
+
+
       <Catalog onViewDetails={setSelectedMotorcycle} />
       <About />
       <Contact onPhoneCall={handlePhoneCall} onWhatsApp={handleWhatsApp} onEmail={handleEmail} />

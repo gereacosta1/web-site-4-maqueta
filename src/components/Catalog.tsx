@@ -1,15 +1,37 @@
 import React, { useState } from 'react';
 import { Heart, Eye, Fuel, Gauge, Calendar } from 'lucide-react';
 import { Motorcycle } from '../App';
-
+import AffirmButton from './AffirmButton';
 
 interface CatalogProps {
   onViewDetails: (motorcycle: Motorcycle) => void;
 }
 
+/** Toast simple para reemplazar alert() de "Ver más motos" */
+function SimpleToast({
+  show, text, onClose,
+}: { show: boolean; text: string; onClose: () => void }) {
+  if (!show) return null;
+  return (
+    <div
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/90 text-white border border-white/20 px-4 py-3 rounded-xl shadow-2xl z-[9999] text-sm font-semibold"
+      onClick={onClose}
+      role="status"
+    >
+      {text}
+    </div>
+  );
+}
+
 const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
+  // 👇 TODOS los hooks SIEMPRE dentro del cuerpo del componente
   const [filter, setFilter] = useState<'all' | 'nueva'>('all');
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [toast, setToast] = useState<{ show: boolean; text: string }>({ show: false, text: '' });
+  const showToast = (text: string, ms = 2500) => {
+    setToast({ show: true, text });
+    window.setTimeout(() => setToast({ show: false, text: '' }), ms);
+  };
 
   const motorcycles: Motorcycle[] = [
     {
@@ -18,7 +40,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 150,
+      price: 450,
       image: "/IMG/MOTO-MISAKI-GN-150.jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -32,7 +54,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "falcon",
       model: "falcon 200cc",
       year: 2023,
-      price: 100,
+      price: 1000,
       image: "/IMG/FALCON-200cc.jpeg",
       condition: "Nueva",
       engine: "649cc",
@@ -45,10 +67,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TANK",
       model: "TANK 200",
       year: 2022,
-      price: 20,
+      price: 520,
       image: "/IMG/MOTO-TANK-200.jpeg",
       condition: "Nueva",
-      engine: "399cc",
+      engine: "Electric",
       mileage: 8500,
       description: "TANK 200 en excelente estado. Perfecta para quienes buscan deportividad y eficiencia en combustible.",
       features: ["ABS", "Frenos de disco", "Carenado completo", "Asiento biplaza", "Luces LED"]
@@ -59,7 +81,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "Vitacc",
       model: "G310R",
       year: 2024,
-      price: 20,
+      price: 820,
       image: "/IMG/MOTO-XMT-250.jpeg",
       condition: "Nueva",
       engine: "313cc",
@@ -73,10 +95,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "SCOOTER ELECTRICO",
       year: 2021,
-      price: 40,
+      price: 640,
       image: "/IMG/Scooter-electrico(1).jpeg",
       condition: "Nueva",
-      engine: "821cc",
+      engine: "Electric",
       mileage: 12000,
       description: "SCOOTER ELECTRICO, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
       features: ["ABS", "Control de tracción", "Modos de conducción", "Suspensión Öhlins", "Escape Termignoni"]
@@ -87,7 +109,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "TITAN",
       model: "TITAN 250",
       year: 2023,
-      price: 40,
+      price: 840,
       image: "/IMG/TITAN-250.jpeg",
       condition: "Nueva",
       engine: "373cc",
@@ -100,10 +122,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "FLASH",
       model: "FLASH 50cc",
       year: 2021,
-      price: 40,
+      price: 640,
       image: "/IMG/FLASH 50cc.jpeg",
       condition: "Nueva",
-      engine: "821cc",
+      engine: "Electric",
       mileage: 12000,
       description: "Flash 50cc, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
       features: ["ABS", "Control de tracción", "Modos de conducción", "Suspensión Öhlins", "Escape Termignoni"]
@@ -114,10 +136,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "SCOOTER",
       model: "ELECTRIC SCOOTER",
       year: 2021,
-      price: 40,
+      price: 840,
       image: "/IMG/ELECTRIC SCOOTER.jpeg",
       condition: "Nueva",
-      engine: "821cc",
+      engine: "Electric",
       mileage: 12000,
       description: "ELECTRIC SCOOTER, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
       features: ["ABS", "Control de tracción", "Modos de conducción", "Suspensión Öhlins", "Escape Termignoni"]
@@ -128,7 +150,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 30,
+      price: 730,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -142,7 +164,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "MISAKI",
       model: "GN 150",
       year: 2024,
-      price: 160,
+      price: 1060,
       image: "/IMG/MOTO-MISAKI-GN-150-(3).jpeg",
       condition: "Nueva",
       engine: "321cc",
@@ -156,10 +178,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       brand: "Electric Bike",
       model: "EBike Pro 2025",
       year: 2025,
-      price: 400,
+      price: 500,
       image: "/IMG/electricBike2.jpeg",
       condition: "Nueva",
-      engine: "Eléctrico",
+      engine: "Electric",
       featured: true,
       description: "Bicicleta eléctrica de alto rendimiento, ideal para ciudad y trayectos largos.",
       features: ["Motor eléctrico", "Batería de larga duración", "Tablero digital"]
@@ -173,7 +195,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       price: 200,
       image: "/IMG/electricBike3.jpeg",
       condition: "Nueva",
-      engine: "Eléctrico",
+      engine: "Electric",
       featured: true,
       description: "Bicicleta eléctrica urbana, cómoda y eficiente para el día a día.",
       features: ["Motor eléctrico", "Diseño compacto", "Autonomía extendida"]
@@ -222,18 +244,20 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
     },
   ];
 
+  // Mostrar solo eléctricos o productos sin motor (JBL/ruedas)
+  const onlyElectricOrNoEngine = motorcycles.filter(m =>
+    (m.engine && m.engine.toLowerCase() === 'electric') || !m.engine
+  );
 
-  
-
-
-  const filteredMotorcycles = motorcycles.filter(moto => {
+  // Mantener tu filtro "Todas / Nuevas" sobre la lista ya filtrada
+  const filteredMotorcycles = onlyElectricOrNoEngine.filter(moto => {
     if (filter === 'all') return true;
     return moto.condition.toLowerCase() === filter;
   });
 
   const toggleFavorite = (id: number) => {
-    setFavorites(prev => 
-      prev.includes(id) 
+    setFavorites(prev =>
+      prev.includes(id)
         ? prev.filter(favId => favId !== id)
         : [...prev, id]
     );
@@ -248,7 +272,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
           </h2>
           <p className="text-white text-xl md:text-2xl max-w-3xl mx-auto font-bold">
             Explora nuestra selección de motocicletas nuevas y usadas. 
-            Encuentra la moto perfecta para ti.
+            Encontrá la moto perfecta para vos.
           </p>
         </div>
 
@@ -258,8 +282,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
             <button
               onClick={() => setFilter('all')}
               className={`px-8 py-3 rounded-md text-lg font-black transition-all duration-300 ${
-                filter === 'all' 
-                  ? 'bg-black/90 backdrop-blur-sm text-white shadow-lg' 
+                filter === 'all'
+                  ? 'bg-black/90 backdrop-blur-sm text-white shadow-lg'
                   : 'text-white hover:bg-black/30'
               }`}
             >
@@ -268,27 +292,17 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
             <button
               onClick={() => setFilter('nueva')}
               className={`px-8 py-3 rounded-md text-lg font-black transition-all duration-300 ${
-                filter === 'nueva' 
-                  ? 'bg-black/90 backdrop-blur-sm text-white shadow-lg' 
+                filter === 'nueva'
+                  ? 'bg-black/90 backdrop-blur-sm text-white shadow-lg'
                   : 'text-white hover:bg-black/30'
               }`}
             >
               Nuevas
             </button>
-            {/* <button
-              onClick={() => setFilter('usada')}
-              className={`px-8 py-3 rounded-md text-lg font-black transition-all duration-300 ${
-                filter === 'usada' 
-                  ? 'bg-black/90 backdrop-blur-sm text-white shadow-lg' 
-                  : 'text-white hover:bg-black/30'
-              }`}
-            >
-              Usadas
-            </button> */}
           </div>
         </div>
 
-        {/* Motorcycles Grid */}
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredMotorcycles.map((moto) => (
             <div
@@ -297,34 +311,42 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
             >
               <div className="relative">
                 <img
-                  src={moto.image}
-                  alt={moto.name}
+                  src={moto.image || '/fallback.png'}
+                  alt={moto.name || 'Imagen no disponible'}
                   className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src.endsWith('/fallback.png')) return; // evita loop si también falla el fallback
+                    target.src = '/fallback.png';
+                  }}
                 />
                 <div className="absolute top-4 left-4">
-                  <span className={`px-3 py-1 rounded-full text-sm font-small ${
-                    moto.condition === 'Nueva' 
-                      ? 'bg-black text-white font-bold' 
-                      : 'bg-white text-black font-bold'
-                  }`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-small ${
+                      moto.condition === 'Nueva'
+                        ? 'bg-black text-white font-bold'
+                        : 'bg-white text-black font-bold'
+                    }`}
+                  >
                     {moto.condition}
                   </span>
                 </div>
                 <div className="absolute top-4 right-4">
                   <button
+                    type="button"
                     onClick={() => toggleFavorite(moto.id)}
                     className="p-2 rounded-full bg-black/80 backdrop-blur-sm hover:bg-black transition-colors border border-white/20"
                     aria-label={favorites.includes(moto.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                   >
-                    <Heart 
-                      className={`w-5 h-5 ${
-                        favorites.includes(moto.id) 
-                          ? 'text-red-500 fill-current' 
-                          : 'text-white'
-                      }`} 
+                    <Heart
+                      className="w-5 h-5"
+                      color={favorites.includes(moto.id) ? '#ef4444' : '#ffffff'}
+                      fill={favorites.includes(moto.id) ? '#ef4444' : 'none'}
                     />
                   </button>
                 </div>
+
                 {moto.featured && (
                   <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-black/90 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold">
@@ -336,8 +358,10 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
 
               <div className="p-2">
                 <h3 className="text-2xl font-black text-white mb-2">{moto.name}</h3>
-                <p className="text-white mb-4 text-lg font-bold">{moto.brand} • {moto.model}</p>
-                
+                <p className="text-white mb-4 text-lg font-bold">
+                  {moto.brand} • {moto.model}
+                </p>
+
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center space-x-2 text-white">
                     <Calendar className="w-4 h-4" />
@@ -349,10 +373,6 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                       <span className="text-sm font-semibold">{moto.engine}</span>
                     </div>
                   )}
-                  {/* <div className="flex items-center space-x-2 text-white">
-                    <Fuel className="w-4 h-4" />
-                    <span className="text-lg font-bold">{moto.engine}</span>
-                  </div> */}
                   {moto.mileage && (
                     <div className="flex items-center space-x-2 text-white col-span-2">
                       <Gauge className="w-4 h-4" />
@@ -361,21 +381,29 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                   )}
                 </div>
 
-                  {moto.price > 0 && (
+                {/* precio visible */}
+                {moto.price > 0 && (
                   <p className="text-lg font-black text-white mb-2">
-                    ${moto.price.toLocaleString()}
+                    ${Number(moto.price).toLocaleString()}
                   </p>
                 )}
+
+                {/* features */}
+                {moto.features?.length ? (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {moto.features.map((f, idx) => (
+                      <span
+                        key={`${moto.id}-feature-${idx}`}
+                        className="bg-black/70 border border-white/20 text-white text-xs px-2 py-1 rounded"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
                 <div className="flex items-center justify-between">
-                  {/* <div>
-                    {!hidePrices && (
-                   <p className="text-3xl font-black text-white">
-                    ${moto.price.toLocaleString()}
-                    </p>
-              )}
-                    <p className="text-lg text-white font-bold"></p>
-                  </div> */}
-                  <button 
+                  <button
                     onClick={() => onViewDetails(moto)}
                     className="bg-black/90 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-lg text-lg font-black hover:bg-white hover:text-black transition-all duration-300 flex items-center space-x-2 transform hover:scale-105"
                     aria-label={`Ver detalles de ${moto.name}`}
@@ -383,6 +411,35 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                     <Eye className="w-4 h-4" />
                     <span>Ver Detalles</span>
                   </button>
+
+                  {/* Affirm: deshabilitado si precio inválido */}
+                  {(() => {
+                    const priceNum = Number(moto.price);
+                    const isPriceValid = Number.isFinite(priceNum) && priceNum > 0;
+                    if (!isPriceValid) {
+                      return (
+                        <button
+                          disabled
+                          title="Precio a confirmar"
+                          className="bg-gray-600 text-white px-6 py-3 rounded-lg text-lg font-black opacity-60 cursor-not-allowed"
+                        >
+                          Consultar precio
+                        </button>
+                      );
+                    }
+                    return (
+                      <AffirmButton
+                        cartItems={[{
+                          name: moto.name,
+                          price: priceNum,
+                          qty: 1,
+                          sku: String(moto.id),
+                          url: window.location.href,
+                        }]}
+                        totalUSD={priceNum}
+                      />
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -390,17 +447,17 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
         </div>
 
         <div className="text-center mt-12">
-          <button 
-            onClick={() => {
-              // Simular carga de más motos
-              alert('Próximamente más motocicletas disponibles. ¡Contáctanos para conocer nuestro inventario completo!');
-            }}
+          <button
+            onClick={() => showToast('Próximamente más motocicletas disponibles. ¡Contactanos para conocer el inventario completo!')}
             className="bg-red-600/90 backdrop-blur-md border border-red-600/50 text-white px-12 py-4 rounded-lg text-xl font-black hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-2xl"
           >
             Ver Más Motos
           </button>
         </div>
       </div>
+
+      {/* Toast global de este componente */}
+      <SimpleToast show={toast.show} text={toast.text} onClose={() => setToast({ show: false, text: '' })} />
     </section>
   );
 };
