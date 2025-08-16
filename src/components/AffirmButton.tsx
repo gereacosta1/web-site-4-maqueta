@@ -269,7 +269,7 @@ export default function AffirmButton({
       merchant: {
         user_confirmation_url: `${window.location.origin}/affirm/confirm`,
         user_cancel_url: `${window.location.origin}/affirm/cancel`,
-        user_confirmation_url_action: 'POST',
+        user_confirmation_url_action: 'GET',
         name: 'ONE WAY MOTORS',
       },
       billing: {
