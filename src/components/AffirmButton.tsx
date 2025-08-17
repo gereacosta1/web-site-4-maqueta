@@ -154,7 +154,7 @@ export default function AffirmButton({
             checkout_token: res.checkout_id,
             order_id: orderId,
             amount_cents: totalCents,
-            capture: false,
+            capture: false,// solo informativo; el server igual tiene capture=false fijo
           }),
         });
         const data = await r.json();
