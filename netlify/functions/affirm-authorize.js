@@ -46,8 +46,9 @@ export async function handler(event, context) {
     return { statusCode: 405, headers: corsHeaders, body: 'Method Not Allowed' };
   }
 
-  // ⚠️ Durante QA no capturamos (NO cobra)
-  const capture = false;
+     // 🚀 Producción: CAPTURAR (cobra realmente)
+     const capture = true;
+
 
   try {
     const body = JSON.parse(event.body || '{}');
