@@ -63,20 +63,6 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
     },
     {
       id: 3,
-      name: "TANK 200",
-      brand: "TANK",
-      model: "TANK 200",
-      year: 2025,
-      price: 2500,
-      image: "/IMG/MOTO-TANK-200.jpeg",
-      condition: "Nueva",
-      engine: "Electric",
-      mileage: 850,
-      description: "TANK 200 en excelente estado. Perfecta para quienes buscan deportividad y eficiencia en combustible.",
-      features: ["ABS", "Frenos de disco", "Carenado completo", "Asiento biplaza", "Luces LED"]
-    },
-    {
-      id: 4,
       name: "XMT 250",
       brand: "Vitacc",
       model: "G310R",
