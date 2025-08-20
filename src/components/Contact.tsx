@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
+import UnderlineGrow from "../components/UnderlineGrow";
 
 interface ContactProps {
   onPhoneCall: () => void;
@@ -135,7 +136,7 @@ const Contact: React.FC<ContactProps> = ({ onPhoneCall, onWhatsApp, onEmail }) =
     <section id="contacto" className="py-20 bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Contáctanos</h2>
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-6"><UnderlineGrow>contactanos</UnderlineGrow></h2>
           <p className="text-white text-xl md:text-2xl max-w-3xl mx-auto font-bold">
             ¿Tienes alguna pregunta o quieres agendar una cita? Estamos aquí para ayudarte.
           </p>
