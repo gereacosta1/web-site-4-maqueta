@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Eye, Fuel, Gauge, Calendar } from 'lucide-react';
 import { Motorcycle } from '../App';
 import AffirmButton from './AffirmButton';
+import UnderlineGrow from "../components/UnderlineGrow"; // ajusta la ruta si cambia
 
 interface CatalogProps {
   onViewDetails: (motorcycle: Motorcycle) => void;
@@ -309,8 +310,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
     <section id="catalogo" className="py-20 bg-black">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
-            Nuestro Catálogo
+          <h2 className=" text-4xl md:text-6xl font-black text-white mb-6">
+             <UnderlineGrow>Nuestro Catálogo</UnderlineGrow>
           </h2>
           <p className="text-white text-xl md:text-2xl max-w-3xl mx-auto font-bold">
             Explora nuestra selección de motocicletas nuevas y usadas. 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Award, Users, Clock, Wrench, ChevronLeft, ChevronRight } from 'lucide-react';
+import UnderlineGrow from "../components/UnderlineGrow";
 
 const About: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -57,7 +58,7 @@ const About: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
-            Sobre Nosotros
+            <UnderlineGrow>Sobre Nosotros</UnderlineGrow>
           </h2>
           <p className="text-white text-xl md:text-2xl max-w-4xl mx-auto font-bold">
             Con más de 15 años de experiencia en el mercado, somos la tienda de motocicletas 
@@ -151,7 +152,7 @@ const About: React.FC = () => {
         {/* Services */}
         <div>
           <h3 className="text-3xl font-black text-white text-center mb-12">
-            Nuestros Servicios
+            <UnderlineGrow>Nuestros Servicios</UnderlineGrow>
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
