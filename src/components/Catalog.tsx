@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Heart, Eye, Fuel, Gauge, Calendar } from 'lucide-react';
 import { Motorcycle } from '../App';
 import AffirmButton from './AffirmButton';
-import UnderlineGrow from "../components/UnderlineGrow"; // ajusta la ruta si cambia
+import UnderlineGrow from "./UnderlineGrow";
+
+
+import { useCart } from '../context/CartContext';
 
 interface CatalogProps {
   onViewDetails: (motorcycle: Motorcycle) => void;
@@ -24,8 +27,40 @@ function SimpleToast({
   );
 }
 
+// --- Botón reutilizable con estilos coherentes ---
+type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "secondary" | "ghost";
+};
+
+const Btn: React.FC<BtnProps> = ({
+  variant = "primary",
+  className = "",
+  children,
+  ...props
+}) => {
+  const base =
+    "w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-extrabold " +
+    "transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 " +
+    "focus:ring-red-500 disabled:opacity-60 disabled:cursor-not-allowed";
+  const variants = {
+    primary:
+      "bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-red-500/40 active:scale-[.98]",
+    secondary:
+      "bg-black text-white border border-white/15 hover:bg-black/90 shadow-lg active:scale-[.98]",
+    ghost:
+      "bg-transparent text-white/90 border border-white/20 hover:text-white hover:border-white/40",
+  } as const;
+
+  return (
+    <button className={`${base} ${variants[variant]} ${className}`} {...props}>
+      {children}
+    </button>
+  );
+};
+
+
 const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
-  // 👇 TODOS los hooks SIEMPRE dentro del cuerpo del componente
+  // 👇 hooks del componente
   const [filter, setFilter] = useState<'all' | 'nueva'>('all');
   const [favorites, setFavorites] = useState<number[]>([]);
   const [toast, setToast] = useState<{ show: boolean; text: string }>({ show: false, text: '' });
@@ -33,6 +68,9 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
     setToast({ show: true, text });
     window.setTimeout(() => setToast({ show: false, text: '' }), ms);
   };
+
+  // 👉 carrito
+  const { addItem, open } = useCart();
 
   const motorcycles: Motorcycle[] = [
     {
@@ -432,77 +470,101 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                 )}
 
                 {/* features */}
-                {moto.features?.length ? (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {moto.features.map((f, idx) => (
-                      <span
-                        key={`${moto.id}-feature-${idx}`}
-                        className="bg-black/70 border border-white/20 text-white text-xs px-2 py-1 rounded"
-                      >
-                        {f}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
+{moto.features?.length ? (
+  <div className="flex flex-wrap gap-2 mb-4">
+    {moto.features.map((f, idx) => (
+      <span
+        key={`${moto.id}-feature-${idx}`}
+        className="bg-black/70 border border-white/20 text-white text-xs px-2 py-1 rounded"
+      >
+        {f}
+      </span>
+    ))}
+  </div>
+) : null}
 
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => onViewDetails(moto)}
-                    className="bg-black/90 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-lg text-lg font-black hover:bg-white hover:text-black transition-all duration-300 flex items-center space-x-2 transform hover:scale-105"
-                    aria-label={`Ver detalles de ${moto.name}`}
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>Ver Detalles</span>
-                  </button>
+<div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+  {/* Ver Detalles */}
+  <Btn variant="secondary" onClick={() => onViewDetails(moto)} aria-label={`Ver detalles de ${moto.name}`}>
+    <Eye className="w-4 h-4" />
+    Ver Detalles
+  </Btn>
 
-                  {/* Affirm: deshabilitado si precio inválido */}
-                  {(() => {
-                    const priceNum = Number(moto.price);
-                    const isPriceValid = Number.isFinite(priceNum) && priceNum > 0;
-                    if (!isPriceValid) {
-                      return (
-                        <button
-                          disabled
-                          title="Precio a confirmar"
-                          className="bg-gray-600 text-white px-6 py-3 rounded-lg text-lg font-black opacity-60 cursor-not-allowed"
-                        >
-                          Consultar precio
-                        </button>
-                      );
-                    }
-                    return (
-                      <AffirmButton
-                        cartItems={[{
-                          name: moto.name,
-                          price: priceNum,
-                          qty: 1,
-                          sku: String(moto.id),
-                          url: window.location.href,
-                        }]}
-                        totalUSD={priceNum}
-                      />
-                    );
-                  })()}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+  {/* Agregar al carrito */}
+  <Btn
+    variant="primary"
+    type="button"
+    onClick={() => {
+      const priceNum = Number(moto.price);
+      if (!Number.isFinite(priceNum) || priceNum <= 0) return;
+      addItem({
+        id: String(moto.id),
+        name: moto.name,
+        price: priceNum,
+        qty: 1,
+        sku: String(moto.id),
+        image: moto.image,
+        url: window.location.href,
+      });
+      open();
+    }}
+className="bg-red-800 text-white font-black px-6 py-3 rounded-xl text-lg 
+             border-2 border-white/80 shadow-lg 
+             hover:bg-red-900 hover:border-white hover:scale-105 
+             transition-all duration-300">
+    Agregar
+  </Btn>
 
-        <div className="text-center mt-12">
+  {/* Affirm por ítem (lo mantenemos) */}
+  <div className="w-full">
+    {(() => {
+      const priceNum = Number(moto.price);
+      const isPriceValid = Number.isFinite(priceNum) && priceNum > 0;
+      if (!isPriceValid) {
+        return (
           <button
-            onClick={() => showToast('Próximamente más motocicletas disponibles. ¡Contactanos para conocer el inventario completo!')}
-            className="bg-red-600/90 backdrop-blur-md border border-red-600/50 text-white px-12 py-4 rounded-lg text-xl font-black hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+            disabled
+            title="Precio a confirmar"
+            className="w-full bg-gray-600 text-white px-6 py-3 rounded-xl text-lg font-black opacity-60 cursor-not-allowed"
           >
-            Ver Más Motos
+            Consultar precio
           </button>
-        </div>
-      </div>
+        );
+      }
+      return (
+        <AffirmButton
+          cartItems={[{
+            name: moto.name,
+            price: priceNum,
+            qty: 1,
+            sku: String(moto.id),
+            url: window.location.href,
+          }]}
+          totalUSD={priceNum}
+        />
+      );
+    })()}
+  </div>
+</div>
+</div>
+</div>
+))}
 
-      {/* Toast global de este componente */}
-      <SimpleToast show={toast.show} text={toast.text} onClose={() => setToast({ show: false, text: '' })} />
-    </section>
-  );
+</div>
+
+<div className="text-center mt-12">
+  <button
+    onClick={() => showToast('Próximamente más motocicletas disponibles. ¡Contactanos para conocer el inventario completo!')}
+    className="bg-red-600/90 backdrop-blur-md border border-red-600/50 text-white px-12 py-4 rounded-lg text-xl font-black hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-2xl">
+    Ver Más Motos
+  </button>
+</div>
+</div>
+
+{/* Toast global */}
+<SimpleToast show={toast.show} text={toast.text} onClose={() => setToast({ show: false, text: '' })} />
+</section>
+);
 };
 
 export default Catalog;
