@@ -1,5 +1,5 @@
 // src/components/AffirmButton.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { loadAffirm } from '../lib/affirm';
 
 type CartItem = { name: string; sku?: string; price: number; qty: number; url?: string; image?: string; };
@@ -43,7 +43,7 @@ function NiceModal({
 }: {
   open: boolean;
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   primaryLabel?: string;
   onPrimary?: () => void;
   secondaryLabel?: string;
@@ -243,14 +243,6 @@ export default function AffirmButton({
         retry: false,
       });
       return;
-      // sanity check: si pasó totalUSD, corroboramos que coincida con items
-      if (isFiniteNumber(totalUSD)) {
-        const expected = Math.round(Number(totalUSD) * 100);
-        if (expected !== totalCents) {
-          console.warn('[Affirm] mismatch total', { expected, totalCents, items });
-        }
-      }
-
     }
 
 
@@ -392,8 +384,10 @@ console.log('[Affirm] checkout payload →', checkout);
         type="button"
         onClick={handleClick}
         disabled={opening}
-        className="bg-black text-white px-4 py-2 rounded-md disabled:opacity-60"
-      >
+        className="bg-black text-white font-bold px-5 py-3 rounded-xl text-lg 
+             border-2 border-white shadow-md 
+             hover:bg-neutral-900 hover:border-red-500 hover:scale-105 
+             transition-all duration-300">
         {opening ? 'Abriendo…' : 'Pagar con Affirm'}
       </button>
 

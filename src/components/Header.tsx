@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, MapPin } from 'lucide-react';
+import { Menu, X, Phone, MapPin, ShoppingCart } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 interface HeaderProps {
   activeSection: string;
@@ -8,6 +9,9 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { open, items } = useCart();
+  const cartCount = items.reduce((sum, it) => sum + it.qty, 0);
 
   const menuItems = [
     { id: 'inicio', label: 'Inicio' },
@@ -29,16 +33,16 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
       <div className="container mx-auto px-4 py-5">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <button 
+          <button
             onClick={handleLogoClick}
             className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300"
           >
             <div className="bg-red-600 p-2 rounded-lg">
-              <img 
-                  src="/IMG/One_Way_Motors_Logo-1.png" 
-                  alt="Logo de One Way Motors"
-                  className="w-10 h-10 object-contain rounded-lg"
-                  />
+              <img
+                src="/IMG/One_Way_Motors_Logo-1.png"
+                alt="Logo de One Way Motors"
+                className="w-10 h-10 object-contain rounded-lg"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-wide">ONE WAY MOTORS</h1>
@@ -47,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -59,18 +63,34 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
                 {item.label}
               </button>
             ))}
+
+            {/* Botón Carrito (desktop) */}
+            <button
+              onClick={open}
+              className="relative flex items-center gap-2 text-white hover:text-red-400 transition-colors"
+              aria-label="Abrir carrito"
+              title="Carrito"
+            >
+              <ShoppingCart className="w-5 h-5 text-red-500" />
+              <span className="text-lg font-semibold">Carrito</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  {cartCount}
+                </span>
+              )}
+            </button>
           </nav>
 
-          {/* Contact Info - Desktop */}
+          {/* Contact + Carrito - Desktop (separado del nav si querés) */}
           <div className="hidden lg:flex items-center space-x-6 text-white">
-            <button 
+            <button
               onClick={handlePhoneCall}
               className="flex items-center space-x-2 hover:text-red-400 transition-colors duration-300"
             >
               <Phone className="w-4 h-4 text-red-500" />
               <span className="text-lg font-semibold">+1(786)2530995</span>
             </button>
-            <button 
+            <button
               onClick={() => onNavigate('contacto')}
               className="flex items-center space-x-2 hover:text-red-400 transition-colors duration-300"
             >
@@ -79,27 +99,44 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Buttons */}
           <div className="md:hidden flex items-center space-x-4">
-            <button 
+            {/* Carrito (mobile) */}
+            <button
+              onClick={open}
+              className="relative text-white hover:text-red-400 transition-colors"
+              aria-label="Abrir carrito"
+              title="Carrito"
+            >
+              <ShoppingCart className="w-6 h-6 text-red-500" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-bold rounded-full px-1.5 py-[2px]">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            <button
               onClick={handlePhoneCall}
               className="flex items-center space-x-2 text-white hover:text-red-400 transition-colors duration-300"
             >
               <Phone className="w-4 h-4 text-red-500" />
               <span className="text-sm font-semibold">Llamar</span>
             </button>
+
             <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-white hover:text-red-400 transition-colors"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden text-white hover:text-red-400 transition-colors"
+              aria-label="Abrir menú"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-red-600">
+          <div className="md:hidden mt-4 pb-4 border-top border-red-600">
             <nav className="flex flex-col space-y-2 pt-4">
               {menuItems.map((item) => (
                 <button
