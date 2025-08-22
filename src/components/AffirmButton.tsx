@@ -145,21 +145,21 @@ export default function AffirmButton({
   };
 
   const getAffirmCallbacks = (orderId: string, totalCents: number) => ({
-    onSuccess: async (res: { checkout_id: string }) => {
-      try {
-        const r = await fetch('/.netlify/functions/affirm-authorize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            checkout_token: res.checkout_id,
-            order_id: orderId,
-            amount_cents: totalCents,
-            capture: false,// solo informativo; el server igual tiene capture=false fijo
-          }),
-        });
-        const data = await r.json();
-        console.log('affirm-authorize →', data);
-        showToast('success', '¡Solicitud enviada con éxito!');
+  onSuccess: async (res: { checkout_token: string }) => {
+     try {
+       const r = await fetch('/.netlify/functions/affirm-authorize', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+          checkout_token: res.checkout_token,  // ← usar el nombre correcto
+           order_id: orderId,
+           amount_cents: totalCents,            // en CENTAVOS, ya lo enviás bien
+          capture: true                        // opcional; el server decide igual
+         }),
+       });
+       const data = await r.json();
+       console.log('affirm-authorize →', data);
+       showToast('success', '¡Solicitud enviada con éxito!');
       } catch (e) {
         console.warn('Falló llamada a función:', e);
         setModal({

@@ -1,194 +1,142 @@
 // netlify/functions/affirm-authorize.js
+// API v2: crea charge desde checkout_token y (opcional) captura el pago
 
-// Detecta ambiente para pegarle al endpoint correcto de Affirm
-const env = (process.env.AFFIRM_ENV || 'sandbox').toLowerCase() === 'prod' ? 'prod' : 'sandbox';
-const base = env === 'prod' ? 'https://api.affirm.com' : 'https://sandbox.affirm.com';
+const isProd = String(process.env.AFFIRM_ENV || "").toLowerCase() === "prod";
+const BASE = isProd
+  ? "https://api.affirm.com/api/v2"
+  : "https://sandbox.affirm.com/api/v2";
 
 // CORS básico
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-// Helpers de logging (seguros)
-function logStart(ctx, data) {
-  const reqId = ctx?.requestId || 'local';
-  console.log(`[affirm-authorize][${reqId}] START env=${env} base=${base}`);
-  if (data) {
-    console.log(`[affirm-authorize][${reqId}] BODY RECIBIDO:`, safeJson(data));
-  }
-}
-function logStep(ctx, step, payload) {
-  const reqId = ctx?.requestId || 'local';
-  console.log(`[affirm-authorize][${reqId}] ${step}:`, safeJson(payload));
-}
-function logEnd(ctx, status, payload) {
-  const reqId = ctx?.requestId || 'local';
-  console.log(`[affirm-authorize][${reqId}] END status=${status}`, safeJson(payload));
-}
-function safeJson(obj) {
+// Logging seguro
+const safe = (o) => {
   try {
-    // Evita loguear objetos gigantes y normaliza
-    return JSON.stringify(obj, null, 2).slice(0, 5000);
+    return JSON.stringify(o, null, 2).slice(0, 4000);
   } catch {
-    return '[unserializable]';
+    return "[unserializable]";
   }
-}
+};
 
-export async function handler(event, context) {
+// ⚙️ En prod conviene capturar para que luego se “fundee”
+const CAPTURE = true;
+
+export async function handler(event) {
   // Preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: corsHeaders, body: 'OK' };
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "OK" };
   }
 
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: corsHeaders, body: 'Method Not Allowed' };
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, headers: corsHeaders, body: "Method Not Allowed" };
   }
-
-     // 🚀 Producción: CAPTURAR (cobra realmente)
-     const capture = true;
-
 
   try {
-    const body = JSON.parse(event.body || '{}');
-
-    // Logs de inicio
-    logStart(context, {
-      // Solo datos mínimos (no sensibles):
-      order_id: body?.order_id,
-      checkout_token_len: typeof body?.checkout_token === 'string' ? body.checkout_token.length : null,
-      amount_cents: body?.amount_cents,
-      capture_flag_in_body: body?.capture,
-      capture_flag_server: capture,
-    });
-
     const {
       checkout_token,
       order_id,
-      amount_cents,
-      shipping_carrier,
-      shipping_confirmation,
-    } = body;
+      amount_cents,            // total en centavos (entero)
+      shipping_carrier,        // opcional
+      shipping_confirmation,   // opcional
+    } = JSON.parse(event.body || "{}");
 
     if (!checkout_token || !order_id) {
-      const resp = { error: 'Missing checkout_token or order_id' };
-      logEnd(context, 400, resp);
       return {
         statusCode: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(resp),
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "Missing checkout_token or order_id" }),
       };
     }
 
-    const pub = process.env.AFFIRM_PUBLIC_KEY;
-    const priv = process.env.AFFIRM_PRIVATE_KEY;
-    if (!pub || !priv) {
-      const resp = { error: 'Missing AFFIRM keys' };
-      logEnd(context, 500, resp);
+    const PUB = process.env.AFFIRM_PUBLIC_KEY;
+    const PRIV = process.env.AFFIRM_PRIVATE_KEY;
+    if (!PUB || !PRIV) {
       return {
         statusCode: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(resp),
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "Missing AFFIRM keys" }),
       };
     }
 
-    const auth = Buffer.from(`${pub}:${priv}`).toString('base64');
+    const AUTH = "Basic " + Buffer.from(`${PUB}:${PRIV}`).toString("base64");
 
-    // 1) Autorizar
-    logStep(context, 'FETCH authorize → /api/v1/transactions', {
-      transaction_id_preview: checkout_token?.slice(0, 6) + '…',
-      order_id,
-    });
-
-    const authRes = await fetch(`${base}/api/v1/transactions`, {
-      method: 'POST',
+    // 1) Autorizar: crear el charge a partir del checkout_token
+    const authRes = await fetch(`${BASE}/charges`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+        Authorization: AUTH,
       },
-      body: JSON.stringify({ transaction_id: checkout_token, order_id }),
+      body: JSON.stringify({ checkout_token }),
     });
 
-    const authorize = await authRes.json().catch(() => ({}));
-    logStep(context, 'authorize response (raw)', { status: authRes.status, body: authorize });
+    const charge = await authRes.json().catch(() => ({}));
+    console.log(
+      "[charges] env=",
+      isProd ? "prod" : "sandbox",
+      " status=",
+      authRes.status,
+      " resp=",
+      safe(charge)
+    );
 
     if (!authRes.ok) {
-      const resp = { step: 'authorize', error: authorize };
-      logEnd(context, authRes.status, resp);
       return {
         statusCode: authRes.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(resp),
+        headers: corsHeaders,
+        body: JSON.stringify({ step: "charges", error: charge }),
       };
     }
 
-    // 2) (opcional) Capturar (DESACTIVADO en QA)
-    let captureResult = null;
-    if (capture) {
-      if (typeof amount_cents !== 'number') {
-        const resp = { error: 'amount_cents is required when capture=true' };
-        logEnd(context, 400, resp);
+    // 2) Capturar (si tu merchant no tiene auto-capture)
+    let capture = null;
+    if (CAPTURE) {
+      if (typeof amount_cents !== "number") {
         return {
           statusCode: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify(resp),
+          headers: corsHeaders,
+          body: JSON.stringify({ error: "amount_cents required for capture=true" }),
         };
       }
 
-      const txId = authorize.id;
-      logStep(context, 'FETCH capture → /capture', {
-        txId_preview: String(txId).slice(0, 8) + '…',
-        order_id,
-        amount_cents,
-        shipping_carrier,
-        shipping_confirmation,
-      });
-
-      const capRes = await fetch(`${base}/api/v1/transactions/${encodeURIComponent(txId)}/capture`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Basic ${auth}`,
-        },
+      const capRes = await fetch(`${BASE}/charges/${encodeURIComponent(charge.id)}/capture`, {
+        method: "POST",
+        headers: { Authorization: AUTH, "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id,
-          amount: amount_cents,
+          amount: amount_cents,           // centavos (entero)
           shipping_carrier,
           shipping_confirmation,
         }),
       });
 
-      captureResult = await capRes.json().catch(() => ({}));
-      logStep(context, 'capture response (raw)', { status: capRes.status, body: captureResult });
+      capture = await capRes.json().catch(() => ({}));
+      console.log("[capture] status=", capRes.status, " resp=", safe(capture));
 
       if (!capRes.ok) {
-        const resp = { step: 'capture', authorize, error: captureResult };
-        logEnd(context, capRes.status, resp);
         return {
           statusCode: capRes.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify(resp),
+          headers: corsHeaders,
+          body: JSON.stringify({ step: "capture", error: capture }),
         };
       }
-    } else {
-      logStep(context, 'capture SKIPPED', { reason: 'QA mode (capture=false)' });
     }
 
-    const resp = { authorize, capture: captureResult };
-    logEnd(context, 200, resp);
     return {
       statusCode: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify(resp),
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ ok: true, charge, capture }),
     };
   } catch (e) {
-    const resp = { error: e?.message || 'Unknown error' };
-    logEnd(context, 500, resp);
+    console.error("[affirm-authorize] error", e);
     return {
       statusCode: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify(resp),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "server_error" }),
     };
   }
 }
