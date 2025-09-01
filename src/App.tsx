@@ -6,6 +6,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import MotorcycleModal from './components/MotorcycleModal';
+import { I18nProvider } from './i18n/I18nProvider';
 
 // 🛒 carrito
 import { CartProvider, useCart } from './context/CartContext';
@@ -97,8 +98,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <CartProvider>
-      <AppInner />
-    </CartProvider>
+     <I18nProvider> 
+      <CartProvider>
+         <AppInner />
+      </CartProvider>
+    </I18nProvider>
   );
 }

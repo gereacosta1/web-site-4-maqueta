@@ -1,27 +1,30 @@
 import React from 'react';
-import { Bike, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useI18n } from '../i18n/I18nProvider';
 
 const Footer: React.FC = () => {
+  const { t } = useI18n();
+
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/motocentral", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com/motocentral", label: "Instagram" },
-    { icon: Twitter, href: "https://twitter.com/motocentral", label: "Twitter" },
-    { icon: Youtube, href: "https://youtube.com/motocentral", label: "YouTube" }
-  ];
+    { id: 'facebook',  icon: Facebook,  href: 'https://facebook.com/motocentral',  labelKey: 'social.facebook' },
+    { id: 'instagram', icon: Instagram, href: 'https://instagram.com/motocentral', labelKey: 'social.instagram' },
+    { id: 'twitter',   icon: Twitter,   href: 'https://twitter.com/motocentral',   labelKey: 'social.twitter' },
+    { id: 'youtube',   icon: Youtube,   href: 'https://youtube.com/motocentral',   labelKey: 'social.youtube' },
+  ] as const;
 
   const quickLinks = [
-    { text: "Inicio", href: "#inicio" },
-    { text: "Catálogo", href: "#catalogo" },
-    { text: "Nosotros", href: "#nosotros" },
-    { text: "Contacto", href: "#contacto" }
-  ];
+    { id: 'home',     textKey: 'nav.home',    href: '#inicio' },
+    { id: 'catalog',  textKey: 'nav.catalog', href: '#catalogo' },
+    { id: 'about',    textKey: 'nav.about',   href: '#nosotros' },
+    { id: 'contact',  textKey: 'nav.contact', href: '#contacto' },
+  ] as const;
 
   const services = [
-    { text: "Motos Nuevas", href: "#catalogo" },
-    { text: "Motos Usadas", href: "#catalogo" },
-    { text: "Financiamiento", href: "#contacto" },
-    { text: "Servicio Técnico", href: "#contacto" }
-  ];
+    { id: 'new',       textKey: 'services.new',       href: '#catalogo' },
+    { id: 'used',      textKey: 'services.used',      href: '#catalogo' },
+    { id: 'finance',   textKey: 'services.finance',   href: '#contacto' },
+    { id: 'tech',      textKey: 'services.tech',      href: '#contacto' },
+  ] as const;
 
   const handleSocialClick = (href: string) => {
     window.open(href, '_blank', 'noopener,noreferrer');
@@ -30,61 +33,61 @@ const Footer: React.FC = () => {
   const handleLinkClick = (href: string) => {
     if (href.startsWith('#')) {
       const element = document.getElementById(href.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
     } else {
       window.open(href, '_blank', 'noopener,noreferrer');
     }
   };
 
   const handleTermsClick = () => {
-    alert('Términos y Condiciones: Documento en desarrollo. Para más información, contáctanos.');
+    alert(t('footer.legal.termsMsg'));
   };
-
   const handlePrivacyClick = () => {
-    alert('Política de Privacidad: Documento en desarrollo. Para más información, contáctanos.');
+    alert(t('footer.legal.privacyMsg'));
   };
-
   const handleCookiesClick = () => {
-    alert('Política de Cookies: Documento en desarrollo. Para más información, contáctanos.');
+    alert(t('footer.legal.cookiesMsg'));
   };
 
   return (
-    <footer className="bg-black border-t border-red-600">
+    <footer className="bg-black border-top border-t border-red-600">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <button 
+            <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center space-x-2 mb-4 hover:scale-105 transition-transform duration-300"
+              aria-label="Go to top"
+              title="Top"
             >
               <div className="bg-red-600 p-2 rounded-lg">
-                 <img 
-                  src="/IMG/One_Way_Motors_Logo-1.png" 
+                <img
+                  src="/IMG/One_Way_Motors_Logo-1.png"
                   alt="Logo de One Way Motors"
                   className="w-10 h-10 object-contain rounded-lg"
-                  />
+                />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-white tracking-wide">ONE WAY MOTORS </h3>
-                <p className="text-lg text-red-400 font-bold">Motos Nuevas y Usadas</p>
+                <h3 className="text-2xl font-black text-white tracking-wide">ONE WAY MOTORS</h3>
+                <p className="text-lg text-red-400 font-bold">{t('footer.tagline')}</p>
               </div>
             </button>
+
             <p className="text-white text-lg font-bold mb-6 max-w-md">
-              Tu tienda de confianza para motocicletas nuevas y usadas. 
-              Más de 15 años brindando calidad, servicio y los mejores precios.
+              {t('footer.desc')}
             </p>
+
             <div className="flex space-x-4">
-              {socialLinks.map((social, index) => (
+              {socialLinks.map((s) => (
                 <button
-                  key={index}
-                  onClick={() => handleSocialClick(social.href)}
+                  key={s.id}
+                  onClick={() => handleSocialClick(s.href)}
                   className="bg-red-600/90 backdrop-blur-md border border-red-600/50 p-3 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-110 shadow-lg"
-                  aria-label={social.label}
+                  aria-label={t(s.labelKey)}
+                  title={t(s.labelKey)}
                 >
-                  <social.icon className="w-5 h-5 text-white" />
+                  <s.icon className="w-5 h-5 text-white" />
                 </button>
               ))}
             </div>
@@ -92,15 +95,15 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-xl font-black text-white mb-4">Enlaces Rápidos</h4>
+            <h4 className="text-xl font-black text-white mb-4">{t('footer.quickLinks.title')}</h4>
             <ul className="space-y-2">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
-                  <button 
+              {quickLinks.map((link) => (
+                <li key={link.id}>
+                  <button
                     onClick={() => handleLinkClick(link.href)}
                     className="text-white text-lg font-bold hover:text-red-400 transition-colors"
                   >
-                    {link.text}
+                    {t(link.textKey)}
                   </button>
                 </li>
               ))}
@@ -109,15 +112,15 @@ const Footer: React.FC = () => {
 
           {/* Services */}
           <div>
-            <h4 className="text-xl font-black text-white mb-4">Servicios</h4>
+            <h4 className="text-xl font-black text-white mb-4">{t('footer.services.title')}</h4>
             <ul className="space-y-2">
-              {services.map((service, index) => (
-                <li key={index}>
-                  <button 
-                    onClick={() => handleLinkClick(service.href)}
+              {services.map((s) => (
+                <li key={s.id}>
+                  <button
+                    onClick={() => handleLinkClick(s.href)}
                     className="text-white text-lg font-bold hover:text-red-400 transition-colors"
                   >
-                    {service.text}
+                    {t(s.textKey)}
                   </button>
                 </li>
               ))}
@@ -127,26 +130,26 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-red-600 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-white text-lg font-bold">
-            © 2024 ONE WAY MOTORS. Todos los derechos reservados.
+            © {new Date().getFullYear()} ONE WAY MOTORS. {t('footer.rights')}
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <button 
+            <button
               onClick={handleTermsClick}
               className="text-white hover:text-red-400 text-lg font-bold transition-colors"
             >
-              Términos y Condiciones
+              {t('footer.legal.terms')}
             </button>
-            <button 
+            <button
               onClick={handlePrivacyClick}
               className="text-white hover:text-red-400 text-lg font-bold transition-colors"
             >
-              Política de Privacidad
+              {t('footer.legal.privacy')}
             </button>
-            <button 
+            <button
               onClick={handleCookiesClick}
               className="text-white hover:text-red-400 text-lg font-bold transition-colors"
             >
-              Cookies
+              {t('footer.legal.cookies')}
             </button>
           </div>
         </div>
