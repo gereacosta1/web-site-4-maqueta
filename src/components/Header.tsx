@@ -2,22 +2,27 @@ import React, { useState } from 'react';
 import { Menu, X, Phone, MapPin, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
+import LangToggle from './LangToggle';
+import { useI18n } from '../i18n/I18nProvider';
+
 interface HeaderProps {
   activeSection: string;
   onNavigate: (section: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
+  const { t } = useI18n();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { open, items } = useCart();
   const cartCount = items.reduce((sum, it) => sum + it.qty, 0);
 
-  const menuItems = [
-    { id: 'inicio', label: 'Inicio' },
-    { id: 'catalogo', label: 'Catálogo' },
-    { id: 'nosotros', label: 'Nosotros' },
-    { id: 'contacto', label: 'Contacto' },
+  // IDs de sección iguales a tus anchors; keys de i18n para el label
+  const menuItems: { id: string; labelKey: keyof (typeof import('../i18n/dict.es').default) }[] = [
+    { id: 'inicio', labelKey: 'nav.home' },
+    { id: 'catalogo', labelKey: 'nav.catalog' },
+    { id: 'nosotros', labelKey: 'nav.about' },
+    { id: 'contacto', labelKey: 'nav.contact' },
   ];
 
   const handlePhoneCall = () => {
@@ -46,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-wide">ONE WAY MOTORS</h1>
-              <p className="text-sm text-red-400 font-medium">Motos Nuevas y Usadas</p>
+              <p className="text-sm text-red-400 font-medium">{t('footer.tagline')}</p>
             </div>
           </button>
 
@@ -60,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
                   activeSection === item.id ? 'text-red-500 border-b-2 border-red-500' : 'text-white'
                 }`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </button>
             ))}
 
@@ -68,20 +73,23 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             <button
               onClick={open}
               className="relative flex items-center gap-2 text-white hover:text-red-400 transition-colors"
-              aria-label="Abrir carrito"
-              title="Carrito"
+              aria-label={t('nav.cart')}
+              title={t('nav.cart')}
             >
               <ShoppingCart className="w-5 h-5 text-red-500" />
-              <span className="text-lg font-semibold">Carrito</span>
+              <span className="text-lg font-semibold">{t('nav.cart')}</span>
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
                   {cartCount}
                 </span>
               )}
             </button>
+
+            {/* Toggle idioma (desktop) */}
+            <LangToggle />
           </nav>
 
-          {/* Contact + Carrito - Desktop (separado del nav si querés) */}
+          {/* Contact + Info - Desktop */}
           <div className="hidden lg:flex items-center space-x-6 text-white">
             <button
               onClick={handlePhoneCall}
@@ -105,8 +113,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
             <button
               onClick={open}
               className="relative text-white hover:text-red-400 transition-colors"
-              aria-label="Abrir carrito"
-              title="Carrito"
+              aria-label={t('nav.cart')}
+              title={t('nav.cart')}
             >
               <ShoppingCart className="w-6 h-6 text-red-500" />
               {cartCount > 0 && (
@@ -116,14 +124,19 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
               )}
             </button>
 
+            {/* Llamar (mobile) */}
             <button
               onClick={handlePhoneCall}
               className="flex items-center space-x-2 text-white hover:text-red-400 transition-colors duration-300"
             >
               <Phone className="w-4 h-4 text-red-500" />
-              <span className="text-sm font-semibold">Llamar</span>
+              <span className="text-sm font-semibold">{t('contact.call')}</span>
             </button>
 
+            {/* Toggle idioma (mobile) */}
+            <LangToggle />
+
+            {/* Menu toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden text-white hover:text-red-400 transition-colors"
@@ -149,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
                     activeSection === item.id ? 'text-red-500 bg-red-600/20' : 'text-white'
                   }`}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </button>
               ))}
             </nav>
