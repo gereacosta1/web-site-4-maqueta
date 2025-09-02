@@ -10,6 +10,17 @@ interface MotorcycleModalProps {
   onWhatsApp: () => void;
 }
 
+/** 🔁 mismo mapeo que en Catalog */
+const FEATURE_KEY_BY_ES: Record<string, string> = {
+  "Motor eléctrico": "feature.motor",
+  "Ligero y ágil": "feature.lightAgile",
+  "Batería de alta capacidad": "feature.batteryHigh",
+  "Motor eléctrico de alta potencia": "feature.motorHighPower",
+  "Pantalla táctil": "feature.touchscreen",
+  "Conectividad Bluetooth": "feature.bluetooth",
+  "Sistema de navegación GPS": "feature.gps",
+};
+
 const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, onPhoneCall, onWhatsApp }) => {
   const { t, lang, fmtMoney } = useI18n();
 
@@ -32,10 +43,20 @@ const MotorcycleModal: React.FC<MotorcycleModalProps> = ({ motorcycle, onClose, 
       ? t('product.condition.new')
       : t('product.condition.used');
 
-  // Claves por producto (sin romper tus datos actuales)
+  // Descripción y features traducibles
   const pid = String(motorcycle.id);
   const desc = tr(`product.${pid}.desc`, motorcycle.description);
-  const feat = (motorcycle.features ?? []).map((f, i) => tr(`product.${pid}.feature.${i}`, f));
+
+  const feat = (motorcycle.features ?? []).map((f, i) => {
+    // 1) intento clave por índice, si existe en diccionario
+    const kByIndex = `product.${pid}.feature.${i}`;
+    const viaIndex = tr(kByIndex, '__MISS__');
+    if (viaIndex !== '__MISS__') return viaIndex;
+
+    // 2) si no hay clave por índice, uso el mapeo ES -> key
+    const k = FEATURE_KEY_BY_ES[f];
+    return k ? t(k as any) : f; // fallback al texto original
+  });
 
   return (
     <div

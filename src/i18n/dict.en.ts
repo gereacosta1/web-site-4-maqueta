@@ -144,6 +144,15 @@ const en = {
 
 
 
+  "feature.motor": "Electric motor",
+  "feature.lightAgile": "Light & agile",
+  "feature.batteryHigh": "High-capacity battery",
+  "feature.motorHighPower": "High-power electric motor",
+  "feature.touchscreen": "Touchscreen",
+  "feature.bluetooth": "Bluetooth connectivity",
+  "feature.gps": "GPS navigation system",
+
+
 
     // ABOUT
   "about.title": "About Us",

@@ -388,7 +388,7 @@ console.log('[Affirm] checkout payload →', checkout);
              border-2 border-white shadow-md 
              hover:bg-neutral-900 hover:border-red-500 hover:scale-105 
              transition-all duration-300">
-        {opening ? 'Abriendo…' : 'Pagar con Affirm'}
+        {opening ? 'Abriendo…' : 'Pay with Affirm'}
       </button>
 
       <Toast show={toast.show} type={toast.type} message={toast.message} onClose={() => setToast(s => ({ ...s, show: false }))} />
