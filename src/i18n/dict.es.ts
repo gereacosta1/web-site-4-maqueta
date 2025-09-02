@@ -18,6 +18,15 @@ const es = {
 "hero.feature.service": "Servicio Técnico",
 
 
+ "feature.motor": "Motor eléctrico",
+  "feature.lightAgile": "Ligero y ágil",
+  "feature.batteryHigh": "Batería de alta capacidad",
+  "feature.motorHighPower": "Motor eléctrico de alta potencia",
+  "feature.touchscreen": "Pantalla táctil",
+  "feature.bluetooth": "Conectividad Bluetooth",
+  "feature.gps": "Sistema de navegación GPS",
+
+
   // CATALOGO / PRODUCTO
   "product.more": "Ver más",
   "product.price": "Precio",

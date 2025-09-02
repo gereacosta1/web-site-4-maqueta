@@ -16,16 +16,18 @@ const I18nCtx = createContext<Ctx | null>(null);
 const LS_KEY = "onewaymotor_lang";
 
 export const I18nProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [lang, setLang] = useState<Lang>("es");
+  // ✅ arranca en inglés siempre (mientras no haya preferencia guardada)
+  const [lang, setLang] = useState<Lang>("en");
 
-  // idioma por storage o navegador
+  // ✅ leer SOLO de localStorage (sin detectar navegador)
   useEffect(() => {
-    const saved = (localStorage.getItem(LS_KEY) as Lang | null);
-    const def: Lang = saved || ((navigator.language || "").toLowerCase().startsWith("es") ? "es" : "en");
+    const saved = localStorage.getItem(LS_KEY) as Lang | null;
+    const def: Lang = saved || "en"; // 👈 inglés por defecto si no hay nada guardado
     setLang(def);
     document.documentElement.lang = def;
   }, []);
 
+  // guardar preferencia y actualizar <html lang="...">
   useEffect(() => {
     localStorage.setItem(LS_KEY, lang);
     document.documentElement.lang = lang;
@@ -38,7 +40,7 @@ export const I18nProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     new Intl.NumberFormat(lang === "es" ? "es-US" : "en-US", {
       style: "currency",
       currency: "USD",
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value);
 
   const value = useMemo<Ctx>(() => ({ lang, t, setLang, fmtMoney }), [lang]);

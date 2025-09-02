@@ -58,6 +58,18 @@ const Btn: React.FC<BtnProps> = ({
   );
 };
 
+/** 🔁 Mapeo: texto ES del array -> clave i18n */
+const FEATURE_KEY_BY_ES: Record<string, string> = {
+  "Motor eléctrico": "feature.motor",
+  "Ligero y ágil": "feature.lightAgile",
+  "Batería de alta capacidad": "feature.batteryHigh",
+  "Motor eléctrico de alta potencia": "feature.motorHighPower",
+  "Pantalla táctil": "feature.touchscreen",
+  "Conectividad Bluetooth": "feature.bluetooth",
+  "Sistema de navegación GPS": "feature.gps",
+  // (si luego querés agregar más, solo añádelos acá)
+};
+
 const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
   const { t, fmtMoney } = useI18n();
 
@@ -168,7 +180,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       engine: "Electric",
       mileage: 1200,
       description: "ELECTRIC SCOOTER, la italiana por excelencia. Potencia, estilo y exclusividad en una sola moto.",
-      features: ["ABS", "Control de tracción", "Modos de conducción", "Suspensión Öhlins", "Escape Termignoni"]
+      features: ["Motor eléctrico", "Ligero y ágil", "Batería de alta capacidad"]
     },
     {
       id: 9,
@@ -478,14 +490,18 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                   {/* features */}
                   {moto.features?.length ? (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {moto.features.map((f, idx) => (
-                        <span
-                          key={`${moto.id}-feature-${idx}`}
-                          className="bg-black/70 border border-white/20 text-white text-xs px-2 py-1 rounded"
-                        >
-                          {f}
-                        </span>
-                      ))}
+                      {moto.features.map((f, idx) => {
+                        const key = FEATURE_KEY_BY_ES[f];
+                        const label = key ? t(key as any) : f; // fallback si no hay mapeo
+                        return (
+                          <span
+                            key={`${moto.id}-feature-${idx}`}
+                            className="bg-black/70 border border-white/20 text-white text-xs px-2 py-1 rounded"
+                          >
+                            {label}
+                          </span>
+                        );
+                      })}
                     </div>
                   ) : null}
 
