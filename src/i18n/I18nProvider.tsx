@@ -2,12 +2,12 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import es from "./dict.es";
 import en from "./dict.en";
 
-type Lang = "es" | "en";
+type Lang = "en" | "es";
 type Dict = typeof es & typeof en; // mismas claves en ambos
 
 type Ctx = {
   lang: Lang;
-  t: (k: keyof Dict) => string;
+  t: (k: string) => string;
   setLang: (l: Lang) => void;
   fmtMoney: (v: number) => string;
 };
@@ -34,7 +34,7 @@ export const I18nProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   }, [lang]);
 
   const dict = lang === "es" ? es : en;
-  const t = (k: keyof Dict) => (dict as any)[k] ?? String(k);
+  const t = (k: string) => (dict as any)[k] ?? String(k);
 
   const fmtMoney = (value: number) =>
     new Intl.NumberFormat(lang === "es" ? "es-US" : "en-US", {

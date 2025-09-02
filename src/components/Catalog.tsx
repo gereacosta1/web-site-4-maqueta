@@ -70,6 +70,30 @@ const FEATURE_KEY_BY_ES: Record<string, string> = {
   // (si luego querés agregar más, solo añádelos acá)
 };
 
+/** ✅ Traducción robusta de features:
+ * 1) product.{id}.feature.{idx} (si existe en el diccionario)
+ * 2) Mapeo genérico por texto ES (FEATURE_KEY_BY_ES)
+ * 3) Fallback al texto original
+ */
+const translateFeature = (
+  t: (k: string) => string,
+  productId: number,
+  featureTextES: string,
+  idx: number
+) => {
+  const keyById = `product.${productId}.feature.${idx}`;
+  const v1 = t(keyById);
+  if (v1 !== keyById) return v1;
+
+  const genericKey = FEATURE_KEY_BY_ES[featureTextES];
+  if (genericKey) {
+    const v2 = t(genericKey);
+    if (v2 !== genericKey) return v2;
+  }
+
+  return featureTextES;
+};
+
 const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
   const { t, fmtMoney } = useI18n();
 
@@ -491,8 +515,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
                   {moto.features?.length ? (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {moto.features.map((f, idx) => {
-                        const key = FEATURE_KEY_BY_ES[f];
-                        const label = key ? t(key as any) : f; // fallback si no hay mapeo
+                        const label = translateFeature(t, moto.id, f, idx);
                         return (
                           <span
                             key={`${moto.id}-feature-${idx}`}
