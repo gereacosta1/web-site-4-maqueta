@@ -27,6 +27,7 @@ export interface Motorcycle {
   featured?: boolean;
   description?: string;
   features?: string[];
+   gallery?: string[];
 }
 
 // Botón flotante para abrir el carrito (usa open() y cuenta total de qty)
@@ -61,13 +62,13 @@ function AppInner() {
   const handlePhoneCall = () => window.open('tel:+1 (786) 253-0995', '_self');
 
   const handleWhatsApp = () => {
-    const message = encodeURIComponent('¡Hola! Me interesa información sobre sus motocicletas. ¿Podrían ayudarme?');
+    const message = encodeURIComponent("Hi! I'm interested in your electric vehicles. Could you help me?");
     const whatsappUrl = `https://wa.me/+17862530995?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleEmail = () => {
-    window.open('mailto:onewaymotors2@gmail.com.mx?subject=Consulta sobre motocicletas', '_self');
+    window.open('mailto:onewaymotors2@gmail.com?subject=Consulta sobre motocicletas', '_self');
   };
 
   return (
