@@ -271,8 +271,8 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       price: 400,
       image: "/IMG/parlanteJBL.jpeg",
       condition: "Nueva",
+      engine: "373cc",
       featured: true,
-      engine:"",
       description: "Parlante JBL portátil, sonido potente y diseño compacto.",
       features: ["Bluetooth", "Resistente al agua", "Batería recargable"]
     },
@@ -285,7 +285,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       price: 300,
       image: "/IMG/parlanteJBL2.jpeg",
       condition: "Nueva",
-      engine: "",
+      engine: "373cc",
       featured: true,
       description: "Parlante JBL Flip, ideal para fiestas y exteriores.",
       features: ["Bluetooth", "Gran autonomía", "Sonido envolvente"]
@@ -299,7 +299,7 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       price: 60,
       image: "/IMG/ruedas.jpeg",
       condition: "Nueva",
-      engine: "",
+      engine: "373cc",
       featured: true,
       description: "Neumáticos de alta calidad para motos y bicicletas eléctricas.",
       features: ["Alta durabilidad", "Agarre superior", "Diseño moderno"]
@@ -360,6 +360,24 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       description: "Scooter Premium Galaxy, la última innovación en movilidad urbana. Con un diseño futurista y tecnología avanzada.",
       features: ["Motor eléctrico de alta potencia", "Pantalla táctil", "Conectividad Bluetooth", "Sistema de navegación GPS"]
     },
+    {
+    id: 5001,
+    name: "Electric Cargo Tricycle",
+    brand: "MZ",
+    model: "E-Cargo",
+    year: 2025,
+    price: 5000,
+    image: "/IMG/triciclo-negro.jpeg",
+    // Si tu modal soporta galería, destapá esta línea y asegurá los archivos:
+    // @ts-ignore
+    gallery: ["/IMG/triciclo-rojo.jpeg", "/IMG/triciclo-rojo2.jpeg", "/IMG/triciclo-rojo3.jpeg"],
+    condition: "Nueva",
+    engine: "Electric",
+    featured: true,
+    description:
+      "Robust electric cargo tricycle ideal for deliveries and utility tasks. Durable chassis, large rear cargo bed, weather canopy and comfortable seating. Financing available.",
+    features: ["Motor eléctrico", "Ligero y ágil", "Batería de alta capacidad"],
+  }
   ];
 
   // Mostrar solo eléctricos o productos sin motor (JBL/ruedas)

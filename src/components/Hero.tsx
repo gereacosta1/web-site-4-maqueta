@@ -16,7 +16,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 to-black/60 z-10"></div>
         <img
           src="https://images.pexels.com/photos/2116475/pexels-photo-2116475.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080"
-          alt="Motorcycle Hero"
+          alt="Electric Vehicles"
           className="w-full h-full object-cover"
         />
       </div>

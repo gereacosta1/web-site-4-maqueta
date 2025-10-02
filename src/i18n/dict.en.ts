@@ -8,7 +8,7 @@ const en = {
 
   // HERO (usa SOLO las claves nuevas que referencia tu Hero.tsx)
   "hero.title.pre": "Your Next",
-  "hero.title.highlight": "Motorbike",
+  "hero.title.highlight": "Vehicle",
   "hero.title.post": "Is Waiting",
   "hero.subtitle": "Discover our wide selection of new and used motorcycles. Quality guaranteed, financing available.",
   "hero.cta.explore": "View Catalog",
@@ -16,6 +16,10 @@ const en = {
   "hero.feature.quality": "Quality Guaranteed",
 "hero.feature.warranty": "Extended Warranty",
 "hero.feature.service": "Technical Service",
+
+// FAVORITES
+"favorites.add": "Add to favorites",
+"favorites.remove": "Remove from favorites",
 
 
   // CATALOG / PRODUCT
@@ -49,6 +53,9 @@ const en = {
   "guarantee.warranty": "Warranty",
   "guarantee.service": "Service",
   "guarantee.quality": "Quality",
+
+
+
 
 
 
@@ -154,6 +161,10 @@ const en = {
 
 
 
+  
+
+
+
     // ABOUT
   "about.title": "About Us",
   "about.subtitle": "With over 15 years of experience, we are the most trusted motorcycle store in the region. We offer quality, service, and competitive prices.",
@@ -187,6 +198,8 @@ const en = {
   "about.services.tech.desc": "Specialized workshop with certified technicians and original parts.",
   "about.services.moreInfo": "More information about: {{title}}. Contact us for details!",
 
+
+  
 
 
 // id:1 MISAKI GN 150
