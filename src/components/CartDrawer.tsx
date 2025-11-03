@@ -1,8 +1,9 @@
 import React from 'react';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import AffirmButton from './AffirmButton';
 import { useI18n } from '../i18n/I18nProvider';
+import PayWithAffirm from './PayWithAffirm';
+
 
 const CartDrawer: React.FC = () => {
   const { t, fmtMoney } = useI18n();
@@ -114,19 +115,10 @@ const CartDrawer: React.FC = () => {
               {t('cart.clear')}
             </button>
 
-            {/* Affirm para TODO el carrito */}
+            {/* Affirm con datos reales (nuevo botón) */}
             <div className="flex-1">
               {items.length && totalUSD > 0 ? (
-                <AffirmButton
-                  cartItems={items.map(it => ({
-                    name: it.name,
-                    price: Number(it.price),
-                    qty: Number(it.qty),
-                    sku: String(it.sku || it.id),
-                    url: String(it.url || window.location.href),
-                  }))}
-                  totalUSD={Number(totalUSD)}
-                />
+                <PayWithAffirm />
               ) : (
                 <button
                   disabled
@@ -136,6 +128,8 @@ const CartDrawer: React.FC = () => {
                 </button>
               )}
             </div>
+
+
           </div>
         </div>
       </aside>
