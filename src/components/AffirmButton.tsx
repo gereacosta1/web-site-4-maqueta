@@ -542,16 +542,17 @@ export default function AffirmButton({
 
 
 
-      <button
-  type="button"
-  onClick={handleClick}
-  disabled={opening || !validCustomer}
-  className="h-9 px-3 text-sm rounded-md font-semibold bg-black text-white
-             border border-white/20 shadow hover:bg-neutral-900
-             transition disabled:opacity-60"
->
-  {opening ? 'Abriendo…' : 'Pay with Affirm'}
-</button>
+     <button
+        type="button"
+        onClick={handleClick}
+        disabled={opening || !validCustomer}
+        className="h-9 px-3 text-sm rounded-md font-semibold bg-black text-white
+                  border border-white/20 shadow hover:bg-neutral-900 transition
+                  disabled:opacity-60 w-auto"
+      >
+        {opening ? 'Abriendo…' : 'Pay with Affirm'}
+      </button>
+
 
 
       <Toast
