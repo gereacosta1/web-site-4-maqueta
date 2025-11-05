@@ -1,11 +1,29 @@
 // src/components/AffirmButton.tsx
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode, type ChangeEvent } from 'react';
 import { loadAffirm } from '../lib/affirm';
 
-type CartItem = { name: string; sku?: string; price: number; qty: number; url?: string; image?: string; };
+type CartItem = {
+  name: string;
+  sku?: string;
+  price: number;
+  qty: number;
+  url?: string;
+  image?: string;
+};
+
 type Customer = {
-  firstName: string; lastName: string; email?: string; phone?: string;
-  address: { line1: string; line2?: string; city: string; state: string; zip: string; country?: string; };
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string; // 2 letras
+    zip: string;   // 5 dígitos
+    country?: string;
+  };
 };
 
 type Props = {
@@ -13,17 +31,28 @@ type Props = {
   totalUSD?: number;
   shippingUSD?: number;
   taxUSD?: number;
-  customer?: Customer;
+  customer?: Customer; // si viene, se precarga el form
 };
 
-/** Cambiá este mínimo si Affirm te exige otro */
 const MIN_TOTAL_CENTS = 5000; // $50
-const isFiniteNumber = (n: any) => typeof n === 'number' && Number.isFinite(n);
+const isFiniteNumber = (n: unknown): n is number =>
+  typeof n === 'number' && Number.isFinite(n);
 
-/** Pequeño Toast local, sin librerías */
-function Toast({ show, type, message, onClose }: { show: boolean; type: 'success' | 'error' | 'info'; message: string; onClose: () => void }) {
+/* ---------------- Toast simple ---------------- */
+function Toast({
+  show,
+  type,
+  message,
+  onClose,
+}: {
+  show: boolean;
+  type: 'success' | 'error' | 'info';
+  message: string;
+  onClose: () => void;
+}) {
   if (!show) return null;
-  const base = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-4 py-3 rounded-xl shadow-2xl border text-sm font-semibold';
+  const base =
+    'fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-4 py-3 rounded-xl shadow-2xl border text-sm font-semibold';
   const palette =
     type === 'success'
       ? 'bg-green-600/95 text-white border-green-400'
@@ -37,9 +66,15 @@ function Toast({ show, type, message, onClose }: { show: boolean; type: 'success
   );
 }
 
-/** Modal simple y elegante */
+/* ---------------- Modal simple ---------------- */
 function NiceModal({
-  open, title, children, primaryLabel, onPrimary, secondaryLabel, onClose,
+  open,
+  title,
+  children,
+  primaryLabel,
+  onPrimary,
+  secondaryLabel,
+  onClose,
 }: {
   open: boolean;
   title: string;
@@ -56,12 +91,17 @@ function NiceModal({
       <div className="relative bg-white rounded-2xl shadow-2xl w-[95%] max-w-md p-6">
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-xl font-black text-gray-900">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">✕</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+            ✕
+          </button>
         </div>
         <div className="text-gray-700 mb-6">{children}</div>
         <div className="flex items-center justify-end gap-3">
           {secondaryLabel ? (
-            <button onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
               {secondaryLabel}
             </button>
           ) : null}
@@ -80,32 +120,46 @@ function NiceModal({
 }
 
 export default function AffirmButton({
-  cartItems, totalUSD, shippingUSD = 0, taxUSD = 0, customer,
+  cartItems,
+  totalUSD,
+  shippingUSD = 0,
+  taxUSD = 0,
+  customer,
 }: Props) {
   const PUBLIC_KEY = import.meta.env.VITE_AFFIRM_PUBLIC_KEY || '';
   const [ready, setReady] = useState(false);
   const [opening, setOpening] = useState(false);
 
-  // UI elegante
-  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error' | 'info'; message: string }>({ show: false, type: 'info', message: '' });
+  // UI helpers
+  const [toast, setToast] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    message: string;
+  }>({ show: false, type: 'info', message: '' });
+
   const showToast = (type: 'success' | 'error' | 'info', message: string, ms = 2500) => {
     setToast({ show: true, type, message });
-    window.setTimeout(() => setToast(s => ({ ...s, show: false })), ms);
+    window.setTimeout(() => setToast((s) => ({ ...s, show: false })), ms);
   };
 
-  const [modal, setModal] = useState<{ open: boolean; title: string; body: string; retry?: boolean }>({
-    open: false, title: '', body: '', retry: false,
-  });
+  const [modal, setModal] = useState<{
+    open: boolean;
+    title: string;
+    body: string;
+    retry?: boolean;
+  }>({ open: false, title: '', body: '', retry: false });
 
-  // Permite reintentar si el modal de Affirm se canceló
   const [lastCheckoutPayload, setLastCheckoutPayload] = useState<any>(null);
+
   const handleRetry = () => {
     setModal({ open: false, title: '', body: '', retry: false });
     if (lastCheckoutPayload) {
       const affirm = (window as any).affirm;
       try {
         affirm.checkout(lastCheckoutPayload);
-        affirm.checkout.open(getAffirmCallbacks(lastCheckoutPayload.order_id, lastCheckoutPayload.total));
+        affirm.checkout.open(
+          getAffirmCallbacks(lastCheckoutPayload.order_id, lastCheckoutPayload.total)
+        );
       } catch (e) {
         console.error('Reintento falló:', e);
         showToast('error', 'No se pudo reintentar el pago.');
@@ -114,19 +168,25 @@ export default function AffirmButton({
   };
 
   useEffect(() => {
-    if (!PUBLIC_KEY) { console.error('Falta VITE_AFFIRM_PUBLIC_KEY'); return; }
+    if (!PUBLIC_KEY) {
+      console.error('Falta VITE_AFFIRM_PUBLIC_KEY');
+      return;
+    }
     loadAffirm(PUBLIC_KEY).then(() => setReady(true)).catch(console.error);
   }, []);
 
+  // Normaliza items → payload Affirm
   const normalizeItems = (itemsIn?: CartItem[]): any[] => {
     if (!itemsIn?.length) {
-      return [{
-        display_name: 'Smoke test item',
-        sku: 'SMOKE-001',
-        unit_price: 2000,
-        qty: 1,
-        item_url: window.location.href,
-      }];
+      return [
+        {
+          display_name: 'Smoke test item',
+          sku: 'SMOKE-001',
+          unit_price: 2000,
+          qty: 1,
+          item_url: window.location.href,
+        },
+      ];
     }
     return itemsIn.map((it, idx) => {
       const name = (it.name || `Item ${idx + 1}`).toString().slice(0, 120);
@@ -144,28 +204,106 @@ export default function AffirmButton({
     });
   };
 
+  /* ---------- Mini-form: identidad REAL (sin John Doe) ---------- */
+  const [c, setC] = useState<Customer>(
+    customer ?? {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address: { line1: '', line2: '', city: '', state: '', zip: '', country: 'USA' },
+    }
+  );
+
+  // Actualiza campos simples y anidados (address.*)
+  const onChange =
+    (
+      path:
+        | 'firstName'
+        | 'lastName'
+        | 'email'
+        | 'phone'
+        | 'address.line1'
+        | 'address.line2'
+        | 'address.city'
+        | 'address.state'
+        | 'address.zip'
+        | 'address.country'
+    ) =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const v = e.target.value;
+      setC((prev) => {
+        const next = { ...prev, address: { ...prev.address } };
+        switch (path) {
+          case 'firstName':
+            next.firstName = v;
+            break;
+          case 'lastName':
+            next.lastName = v;
+            break;
+          case 'email':
+            next.email = v;
+            break;
+          case 'phone':
+            next.phone = v;
+            break;
+          case 'address.line1':
+            next.address.line1 = v;
+            break;
+          case 'address.line2':
+            next.address.line2 = v;
+            break;
+          case 'address.city':
+            next.address.city = v;
+            break;
+          case 'address.state':
+            next.address.state = v.toUpperCase();
+            break;
+          case 'address.zip':
+            next.address.zip = v;
+            break;
+          case 'address.country':
+            next.address.country = v;
+            break;
+        }
+        return next;
+      });
+    };
+
+  // Validación mínima para habilitar botón
+  const validCustomer =
+    c.firstName.trim().length > 1 &&
+    c.lastName.trim().length > 1 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email) &&
+    /^\d{10,15}$/.test(c.phone) &&
+    c.address.line1.trim().length > 3 &&
+    c.address.city.trim().length > 2 &&
+    /^[A-Z]{2}$/.test(c.address.state) &&
+    /^\d{5}$/.test(c.address.zip);
+
+  /* ---------- Callbacks de Affirm ---------- */
   const getAffirmCallbacks = (orderId: string, totalCents: number) => ({
-  onSuccess: async (res: { checkout_token: string }) => {
-     try {
-       const r = await fetch('/.netlify/functions/affirm-authorize', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-          checkout_token: res.checkout_token,  // ← usar el nombre correcto
-           order_id: orderId,
-           amount_cents: totalCents,            // en CENTAVOS, ya lo enviás bien
-          capture: true                        // opcional; el server decide igual
-         }),
-       });
-       const data = await r.json();
-       console.log('affirm-authorize →', data);
-       showToast('success', '¡Solicitud enviada con éxito!');
+    onSuccess: async (res: { checkout_token: string }) => {
+      try {
+        const r = await fetch('/.netlify/functions/affirm-authorize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            checkout_token: res.checkout_token,
+            order_id: orderId,
+            amount_cents: totalCents,
+            capture: true, // el backend decide; esto es una intención
+          }),
+        });
+        const data = await r.json();
+        console.log('affirm-authorize →', data);
+        showToast('success', '¡Solicitud enviada con éxito!');
       } catch (e) {
         console.warn('Falló llamada a función:', e);
         setModal({
           open: true,
           title: 'No pudimos confirmar tu solicitud',
-          body: 'Tuvimos un problema al confirmar con nuestro servidor. Intentá nuevamente en unos segundos.',
+          body: 'Tuvimos un problema al confirmar con nuestro servidor. Intentá nuevamente.',
           retry: true,
         });
       } finally {
@@ -178,7 +316,7 @@ export default function AffirmButton({
       setModal({
         open: true,
         title: 'No se completó la financiación',
-        body: 'Tu solicitud no pudo completarse. Podés intentarlo de nuevo o volver al catálogo.',
+        body: 'Podés intentarlo de nuevo.',
         retry: true,
       });
     },
@@ -188,7 +326,7 @@ export default function AffirmButton({
       setModal({
         open: true,
         title: 'Datos inválidos',
-        body: 'Revisá el precio y el total del producto. Si el problema persiste, contactanos.',
+        body: 'Revisá precio/total del producto.',
         retry: false,
       });
     },
@@ -204,22 +342,27 @@ export default function AffirmButton({
     },
   });
 
+  /* ---------- Checkout click ---------- */
   const handleClick = () => {
     const affirm = (window as any).affirm;
-    if (!affirm?.checkout) { console.error('Affirm no está listo'); return; }
+    if (!affirm?.checkout) {
+      console.error('Affirm no está listo');
+      return;
+    }
 
-    // 1) Construir items y costos en centavos
+    // 1) Items y montos en centavos
     const items = normalizeItems(cartItems);
     let shippingCents = Math.round((Number(shippingUSD) || 0) * 100);
     let taxCents = Math.round((Number(taxUSD) || 0) * 100);
 
-    // Validar cada item
-    const invalids = items.filter(it =>
-      !it.display_name ||
-      !isFiniteNumber(it.unit_price) ||
-      it.unit_price <= 0 ||
-      !isFiniteNumber(it.qty) ||
-      it.qty <= 0
+    // 2) Validación de items
+    const invalids = items.filter(
+      (it) =>
+        !it.display_name ||
+        !isFiniteNumber(it.unit_price) ||
+        it.unit_price <= 0 ||
+        !isFiniteNumber(it.qty) ||
+        it.qty <= 0
     );
     if (invalids.length) {
       console.warn('Items inválidos para Affirm:', invalids, { items });
@@ -227,50 +370,53 @@ export default function AffirmButton({
       return;
     }
 
-    // 2) Total en centavos
+    // 3) Totales
     const sumItems = items.reduce((acc, it) => acc + it.unit_price * it.qty, 0);
-    const totalCentsFromProp = isFiniteNumber(totalUSD) ? Math.round(Number(totalUSD) * 100) : NaN;
-    const totalCents = isFiniteNumber(totalCentsFromProp)
-      ? totalCentsFromProp
+    const totalCentsProp = isFiniteNumber(totalUSD) ? Math.round(Number(totalUSD) * 100) : NaN;
+    const totalCents = isFiniteNumber(totalCentsProp)
+      ? totalCentsProp
       : sumItems + shippingCents + taxCents;
 
     if (!isFiniteNumber(totalCents) || totalCents < MIN_TOTAL_CENTS) {
-      console.warn('Total inválido para Affirm:', { totalCents, totalUSD, sumItems, shippingCents, taxCents, items });
       setModal({
         open: true,
         title: 'Importe no disponible para financiación',
-        body: 'El total es demasiado bajo para Affirm. Elegí otro producto o agregá más artículos.',
+        body: 'El total es demasiado bajo para Affirm.',
         retry: false,
       });
       return;
     }
 
-
-    // 3) Datos mínimos de cliente (fallback)
-    const fallbackCustomer: Customer = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'onewaymotors2@gmail.com',
-      phone: '17862530995',
-      address: { line1: '297 NW 54th St', city: 'Miami', state: 'FL', zip: '33127', country: 'USA' },
-    };
-    const c = customer || fallbackCustomer;
+    // 4) Payload con identidad REAL
     const orderId = 'ORDER-' + Date.now();
-
     const checkout = {
       merchant: {
-        user_confirmation_url: `${window.location.origin}/affirm/confirm`,
-        user_cancel_url: `${window.location.origin}/affirm/cancel`,
+        user_confirmation_url: `${window.location.origin}/affirm/confirm.html`,
+        user_cancel_url: `${window.location.origin}/affirm/cancel.html`,
         user_confirmation_url_action: 'GET',
         name: 'ONE WAY MOTORS',
       },
       billing: {
         name: { first: c.firstName, last: c.lastName },
-        address: { line1: c.address.line1, line2: c.address.line2, city: c.address.city, state: c.address.state, zipcode: c.address.zip, country: c.address.country || 'USA' },
+        address: {
+          line1: c.address.line1,
+          line2: c.address.line2,
+          city: c.address.city,
+          state: c.address.state,
+          zipcode: c.address.zip,
+          country: c.address.country || 'USA',
+        },
       },
       shipping: {
         name: { first: c.firstName, last: c.lastName },
-        address: { line1: c.address.line1, line2: c.address.line2, city: c.address.city, state: c.address.state, zipcode: c.address.zip, country: c.address.country || 'USA' },
+        address: {
+          line1: c.address.line1,
+          line2: c.address.line2,
+          city: c.address.city,
+          state: c.address.state,
+          zipcode: c.address.zip,
+          country: c.address.country || 'USA',
+        },
       },
       customer: { email: c.email, phone_number: c.phone },
       items,
@@ -282,79 +428,28 @@ export default function AffirmButton({
       metadata: { mode: 'modal' },
     };
 
-    console.groupCollapsed('[Affirm] Intento de checkout');
-    console.log({ checkout });
+    // 5) Logs de verificación
+    console.group('[Affirm][VERIFY one-way]');
+    console.log('SDK public key  →', (window as any)._affirm_config?.public_api_key);
+    console.log('confirm URL     →', checkout.merchant.user_confirmation_url);
+    console.log('cancel URL      →', checkout.merchant.user_cancel_url);
+    console.table(
+      checkout.items.map((it: any) => ({
+        display_name: it.display_name,
+        sku: it.sku,
+        unit_price_cents: it.unit_price,
+        qty: it.qty,
+      }))
+    );
+    console.log(
+      'shipping_cents:', checkout.shipping_amount,
+      'tax_cents:', checkout.tax_amount,
+      'TOTAL cents →', checkout.total
+    );
     console.groupEnd();
 
     setLastCheckoutPayload({ ...checkout });
     setOpening(true);
-
-
-            // === DEBUG: verificar montos que viajan a Affirm ===
-        console.group('[Affirm][CHECK]');
-        console.log('Producto (desde Catalog.tsx) →', cartItems?.[0]?.name);
-        console.log('Precio USD (Catalog.tsx) →', cartItems?.[0]?.price);
-        console.table(
-          items.map((it: any) => ({
-            display_name: it.display_name,
-            sku: it.sku,
-            unit_price_cents: it.unit_price,
-            qty: it.qty,
-          }))
-        );
-        console.log('shipping_cents:', shippingCents, 'tax_cents:', taxCents);
-        console.log('sumItems_cents:', sumItems);
-        console.log('totalCents que enviaremos a Affirm →', totalCents);
-
-        // Sanity check
-        if (typeof totalUSD === 'number' && Number.isFinite(totalUSD)) {
-          const expected = Math.round(totalUSD * 100);
-          if (expected !== totalCents) {
-            console.warn('[Affirm][MISMATCH] expected vs totalCents', { expected, totalCents });
-          } else {
-            console.log('[Affirm][OK] totalUSD * 100 coincide con totalCents:', expected);
-          }
-        }
-        console.groupEnd();
-        // === /DEBUG ===
-
-
-        console.log('[Affirm] checkout payload →', checkout);
-
-
-
-
-        console.group('[Affirm][CHECK]');
-console.log('Producto (desde Catalog.tsx) →', cartItems?.[0]?.name);
-console.log('Precio USD (Catalog.tsx) →', cartItems?.[0]?.price);
-console.table(
-  items.map((it: any) => ({
-    display_name: it.display_name,
-    sku: it.sku,
-    unit_price_cents: it.unit_price,
-    qty: it.qty,
-  }))
-);
-console.log('shipping_cents:', shippingCents, 'tax_cents:', taxCents);
-console.log('sumItems_cents:', sumItems);
-console.log('totalCents que enviaremos a Affirm →', totalCents);
-
-if (typeof totalUSD === 'number' && Number.isFinite(totalUSD)) {
-  const expected = Math.round(totalUSD * 100);
-  if (expected !== totalCents) {
-    console.warn('[Affirm][MISMATCH] expected vs totalCents', { expected, totalCents });
-  } else {
-    console.log('[Affirm][OK] totalUSD * 100 coincide con totalCents:', expected);
-  }
-}
-console.groupEnd();
-
-console.log('[Affirm] checkout payload →', checkout);
-
-
-
-
-
 
     try {
       affirm.checkout(checkout);
@@ -366,12 +461,25 @@ console.log('[Affirm] checkout payload →', checkout);
     }
   };
 
+  /* ---------- Render ---------- */
   if (!ready) {
     return (
       <>
-        <button disabled className="bg-gray-600 text-white px-4 py-2 rounded-md">Cargando Affirm…</button>
-        <Toast show={toast.show} type={toast.type} message={toast.message} onClose={() => setToast(s => ({ ...s, show: false }))} />
-        <NiceModal open={modal.open} title={modal.title} onClose={() => setModal({ open: false, title: '', body: '' })} secondaryLabel="Cerrar">
+        <button disabled className="bg-gray-600 text-white px-4 py-2 rounded-md">
+          Cargando Affirm…
+        </button>
+        <Toast
+          show={toast.show}
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast((s) => ({ ...s, show: false }))}
+        />
+        <NiceModal
+          open={modal.open}
+          title={modal.title}
+          onClose={() => setModal({ open: false, title: '', body: '' })}
+          secondaryLabel="Cerrar"
+        >
           {modal.body}
         </NiceModal>
       </>
@@ -380,18 +488,77 @@ console.log('[Affirm] checkout payload →', checkout);
 
   return (
     <>
+      {/* Mini-form con datos reales */}
+      <div className="grid grid-cols-2 gap-2 w-full max-w-xl mb-3">
+        <input
+          className="border rounded px-3 py-2"
+          placeholder="First name"
+          value={c.firstName}
+          onChange={onChange('firstName')}
+        />
+        <input
+          className="border rounded px-3 py-2"
+          placeholder="Last name"
+          value={c.lastName}
+          onChange={onChange('lastName')}
+        />
+        <input
+          className="border rounded px-3 py-2 col-span-2"
+          placeholder="Email"
+          value={c.email}
+          onChange={onChange('email')}
+        />
+        <input
+          className="border rounded px-3 py-2 col-span-2"
+          placeholder="Phone (10–15 digits)"
+          value={c.phone}
+          onChange={onChange('phone')}
+        />
+        <input
+          className="border rounded px-3 py-2 col-span-2"
+          placeholder="Address"
+          value={c.address.line1}
+          onChange={onChange('address.line1')}
+        />
+        <input
+          className="border rounded px-3 py-2"
+          placeholder="City"
+          value={c.address.city}
+          onChange={onChange('address.city')}
+        />
+        <input
+          className="border rounded px-3 py-2"
+          placeholder="State (FL)"
+          value={c.address.state}
+          onChange={onChange('address.state')}
+        />
+        <input
+          className="border rounded px-3 py-2"
+          placeholder="ZIP (5)"
+          value={c.address.zip}
+          onChange={onChange('address.zip')}
+        />
+      </div>
+
       <button
         type="button"
         onClick={handleClick}
-        disabled={opening}
-        className="bg-black text-white font-bold px-5 py-3 rounded-xl text-lg 
-             border-2 border-white shadow-md 
-             hover:bg-neutral-900 hover:border-red-500 hover:scale-105 
-             transition-all duration-300">
+        disabled={opening || !validCustomer}
+        className="bg-black text-white font-bold px-5 py-3 rounded-xl text-lg
+                   border-2 border-white shadow-md
+                   hover:bg-neutral-900 hover:border-red-500 hover:scale-105
+                   transition-all duration-300 disabled:opacity-50"
+      >
         {opening ? 'Abriendo…' : 'Pay with Affirm'}
       </button>
 
-      <Toast show={toast.show} type={toast.type} message={toast.message} onClose={() => setToast(s => ({ ...s, show: false }))} />
+      <Toast
+        show={toast.show}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((s) => ({ ...s, show: false }))}
+      />
+
       <NiceModal
         open={modal.open}
         title={modal.title}
