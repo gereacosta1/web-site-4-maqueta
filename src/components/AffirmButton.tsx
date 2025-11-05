@@ -182,7 +182,7 @@ export default function AffirmButton({
         {
           display_name: 'Smoke test item',
           sku: 'SMOKE-001',
-          unit_price: 2000,
+          unit_price: 5000,
           qty: 1,
           item_url: window.location.href,
         },
