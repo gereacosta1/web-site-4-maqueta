@@ -488,57 +488,58 @@ export default function AffirmButton({
 
   return (
     <>
-      {/* Mini-form con datos reales */}
-      <div className="grid grid-cols-2 gap-2 w-full max-w-xl mb-3">
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="First name"
-          value={c.firstName}
-          onChange={onChange('firstName')}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="Last name"
-          value={c.lastName}
-          onChange={onChange('lastName')}
-        />
-        <input
-          className="border rounded px-3 py-2 col-span-2"
-          placeholder="Email"
-          value={c.email}
-          onChange={onChange('email')}
-        />
-        <input
-          className="border rounded px-3 py-2 col-span-2"
-          placeholder="Phone (10–15 digits)"
-          value={c.phone}
-          onChange={onChange('phone')}
-        />
-        <input
-          className="border rounded px-3 py-2 col-span-2"
-          placeholder="Address"
-          value={c.address.line1}
-          onChange={onChange('address.line1')}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="City"
-          value={c.address.city}
-          onChange={onChange('address.city')}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="State (FL)"
-          value={c.address.state}
-          onChange={onChange('address.state')}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="ZIP (5)"
-          value={c.address.zip}
-          onChange={onChange('address.zip')}
-        />
-      </div>
+     {/* Mini-form con datos reales */}
+<div className="grid grid-cols-2 gap-2 w-full max-w-md mb-3 text-sm">
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="First name"
+    value={c.firstName}
+    onChange={onChange('firstName')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="Last name"
+    value={c.lastName}
+    onChange={onChange('lastName')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="Email"
+    value={c.email}
+    onChange={onChange('email')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="Phone (10–15 digits)"
+    value={c.phone}
+    onChange={onChange('phone')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="Address"
+    value={c.address.line1}
+    onChange={onChange('address.line1')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="City"
+    value={c.address.city}
+    onChange={onChange('address.city')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="State (FL)"
+    value={c.address.state}
+    onChange={onChange('address.state')}
+  />
+  <input
+    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    placeholder="ZIP (5)"
+    value={c.address.zip}
+    onChange={onChange('address.zip')}
+  />
+</div>
+
 
       <button
         type="button"
