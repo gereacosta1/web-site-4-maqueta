@@ -61,15 +61,19 @@ export function loadAffirm(publicKey: string): Promise<void> {
 
     console.log('[Affirm] env:', env, 'cdn:', scriptUrl, 'pk:', publicKey?.slice(0, 6) + '…');
 
-    const s = document.createElement('script');
+   const s = document.createElement('script');
     s.async = true;
     s.src = scriptUrl;
     s.onload = () => {
-      if (window.affirm?.ui) {
-        window.affirm.ui.ready(() => resolve());
-      } else {
-        resolve();
-      }
+      const check = () => {
+        if (window.affirm && window.affirm.ui) {
+          console.log('[Affirm] SDK loaded ✓');
+          window.affirm.ui.ready(() => resolve());
+        } else {
+          setTimeout(check, 100); // espera hasta que cargue completamente
+        }
+      };
+      check();
     };
     s.onerror = reject;
     document.head.appendChild(s);
