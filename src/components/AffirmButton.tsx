@@ -491,67 +491,68 @@ export default function AffirmButton({
      {/* Mini-form con datos reales */}
 <div className="grid grid-cols-2 gap-2 w-full max-w-md mb-3 text-sm">
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="given-name"
+    className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="First name"
-    value={c.firstName}
-    onChange={onChange('firstName')}
+    value={c.firstName} onChange={onChange('firstName')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="family-name"
+    className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="Last name"
-    value={c.lastName}
-    onChange={onChange('lastName')}
+    value={c.lastName} onChange={onChange('lastName')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="email" autoComplete="email"
+    className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="Email"
-    value={c.email}
-    onChange={onChange('email')}
+    value={c.email} onChange={onChange('email')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="tel" inputMode="numeric" autoComplete="tel"
+    className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="Phone (10–15 digits)"
-    value={c.phone}
-    onChange={onChange('phone')}
+    value={c.phone} onChange={onChange('phone')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 col-span-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="address-line1"
+    className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="Address"
-    value={c.address.line1}
-    onChange={onChange('address.line1')}
+    value={c.address.line1} onChange={onChange('address.line1')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="address-level2"
+    className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="City"
-    value={c.address.city}
-    onChange={onChange('address.city')}
+    value={c.address.city} onChange={onChange('address.city')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="address-level1" maxLength={2}
+    className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="State (FL)"
-    value={c.address.state}
-    onChange={onChange('address.state')}
+    value={c.address.state} onChange={onChange('address.state')}
   />
   <input
-    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
+    type="text" autoComplete="postal-code" maxLength={5}
+    className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
     placeholder="ZIP (5)"
-    value={c.address.zip}
-    onChange={onChange('address.zip')}
+    value={c.address.zip} onChange={onChange('address.zip')}
   />
 </div>
 
 
+
       <button
-        type="button"
-        onClick={handleClick}
-        disabled={opening || !validCustomer}
-        className="bg-black text-white font-bold px-5 py-3 rounded-xl text-lg
-                   border-2 border-white shadow-md
-                   hover:bg-neutral-900 hover:border-red-500 hover:scale-105
-                   transition-all duration-300 disabled:opacity-50"
-      >
-        {opening ? 'Abriendo…' : 'Pay with Affirm'}
-      </button>
+  type="button"
+  onClick={handleClick}
+  disabled={opening || !validCustomer}
+  className="h-9 px-3 text-sm rounded-md font-semibold bg-black text-white
+             border border-white/20 shadow hover:bg-neutral-900
+             transition disabled:opacity-60"
+>
+  {opening ? 'Abriendo…' : 'Pay with Affirm'}
+</button>
+
 
       <Toast
         show={toast.show}
