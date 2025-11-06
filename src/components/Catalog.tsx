@@ -361,6 +361,20 @@ const Catalog: React.FC<CatalogProps> = ({ onViewDetails }) => {
       features: ["Motor eléctrico de alta potencia", "Pantalla táctil", "Conectividad Bluetooth", "Sistema de navegación GPS"]
     },
     {
+      id: 20,
+      name: "scooter eléctrico hiboy",
+      brand: "hiboy",
+      model: "scooter eléctrico hiboy",
+      year: 2025,
+      price: 500,
+      image: "/IMG/scooter-electrico-hiboy.jpg",
+      condition: "Nueva",
+      engine: "electric",
+      featured: true,
+      description: "Scooter Movelito, compacto y eficiente. Perfecto para la ciudad con un diseño atractivo.",
+      features: ["Motor eléctrico", "Ligero y ágil", "Batería de alta capacidad"]
+    },
+    {
     id: 5001,
     name: "Electric Cargo Tricycle",
     brand: "MZ",
