@@ -6,7 +6,7 @@ const envVar = String(process.env.AFFIRM_ENV || "").toLowerCase();
 const isProd = envVar === "prod" || envVar === "production";
 const BASE = isProd
   ? "https://api.affirm.com/api/v2"
-  : "https://sandbox.affirm.com/api/v2";
+  : "https://api.sandbox.affirm.com/api/v2"; // <- FIX sandbox domain
 
 // CORS básico
 const corsHeaders = {
@@ -21,10 +21,10 @@ const safe = (o) => {
   catch { return "[unserializable]"; }
 };
 
-// En prod conviene capturar
-const CAPTURE = true;
+// Por defecto capturamos en prod/sandbox (puedes cambiarlo)
+const CAPTURE_DEFAULT = true;
 
-export async function handler(event) {
+exports.handler = async (event) => {
   // Preflight
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders, body: "" };
@@ -65,6 +65,7 @@ export async function handler(event) {
       amount_cents,          // total en centavos (entero)
       shipping_carrier,      // opcional
       shipping_confirmation, // opcional
+      capture,               // opcional: override de captura
     } = body;
 
     if (!checkout_token || !order_id) {
@@ -97,8 +98,10 @@ export async function handler(event) {
     }
 
     // 2) Capturar (si aplica)
-    let capture = null;
-    if (CAPTURE) {
+    const shouldCapture = typeof capture === "boolean" ? capture : CAPTURE_DEFAULT;
+    let captureResp = null;
+
+    if (shouldCapture) {
       if (typeof amount_cents !== "number") {
         return resp(400, { error: "amount_cents required for capture=true" });
       }
@@ -114,24 +117,24 @@ export async function handler(event) {
         }),
       });
 
-      capture = await tryJson(capRes);
-      console.log("[capture]", { status: capRes.status, resp: safe(capture) });
+      captureResp = await tryJson(capRes);
+      console.log("[capture]", { status: capRes.status, resp: safe(captureResp) });
 
       if (!capRes.ok) {
-        return resp(capRes.status, { step: "capture", error: capture });
+        return resp(capRes.status, { step: "capture", error: captureResp });
       }
     }
 
     return {
       statusCode: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ ok: true, charge, capture }),
+      body: JSON.stringify({ ok: true, charge, capture: captureResp }),
     };
   } catch (e) {
     console.error("[affirm-authorize] error", e);
     return resp(500, { error: "server_error" });
   }
-}
+};
 
 // Helpers
 async function tryJson(res) {
