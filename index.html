@@ -2,12 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/public/IMG/One_Way_Motors_Logo-1.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>ONE WAY MOTORS</title>
+
+    <!-- Vite sirve /public/* desde la raíz → usar /IMG/... (no /public/IMG/...) -->
+    <link rel="icon" type="image/png" href="/IMG/One_Way_Motors_Logo-1.png" />
+
+    <!-- Opcional: color de la barra del navegador en mobile -->
+    <meta name="theme-color" content="#0b0b0b" />
+
+    <!-- Opcional: evita indexar deploy previews; quitá esto en prod si querés SEO -->
+    <meta name="robots" content="noindex, nofollow" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <noscript>
+      Please enable JavaScript to view this site.
+    </noscript>
   </body>
 </html>

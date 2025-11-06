@@ -3,12 +3,45 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# ---------- Rutas específicas antes del catch-all (muy importante) ----------
+# Sirve los HTML estáticos de /affirm/* tal cual, sin que el SPA los reescriba
+[[redirects]]
+  from = "/affirm/*"
+  to = "/affirm/:splat"
+  status = 200
+
+# Proxy del API a la función serverless
 [[redirects]]
   from = "/api/affirm-authorize"
   to = "/.netlify/functions/affirm-authorize"
   status = 200
 
+# Catch-all del SPA (mantener al final)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# ---------- Headers útiles ----------
+# No indexar ni cachear las páginas de confirm/cancel
+[[headers]]
+  for = "/affirm/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex"
+    X-Frame-Options = "SAMEORIGIN"
+
+# ---------- Entornos ----------
+# Producción → Affirm prod
+[context.production.environment]
+  AFFIRM_ENV = "prod"
+  VITE_AFFIRM_ENV = "prod"
+
+# Deploy previews/branches → Affirm sandbox
+[context.deploy-preview.environment]
+  AFFIRM_ENV = "sandbox"
+  VITE_AFFIRM_ENV = "sandbox"
+
+[context.branch-deploy.environment]
+  AFFIRM_ENV = "sandbox"
+  VITE_AFFIRM_ENV = "sandbox"

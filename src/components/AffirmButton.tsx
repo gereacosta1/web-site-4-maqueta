@@ -3,7 +3,6 @@ import {
   useEffect,
   useState,
   type ReactNode,
-  type ChangeEvent,
 } from 'react';
 import { loadAffirm } from '../lib/affirm';
 
@@ -16,27 +15,11 @@ type CartItem = {
   image?: string;
 };
 
-type Customer = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    zip: string;
-    country?: string;
-  };
-};
-
 type Props = {
   cartItems?: CartItem[];
   totalUSD?: number;
   shippingUSD?: number;
   taxUSD?: number;
-  customer?: Customer;
 };
 
 const MIN_TOTAL_CENTS = 5000; // $50
@@ -132,9 +115,8 @@ export default function AffirmButton({
   totalUSD,
   shippingUSD = 0,
   taxUSD = 0,
-  customer,
 }: Props) {
-  const PUBLIC_KEY = import.meta.env.VITE_AFFIRM_PUBLIC_KEY || '';
+  const PUBLIC_KEY = (import.meta.env.VITE_AFFIRM_PUBLIC_KEY || '').trim();
   const [ready, setReady] = useState(false);
   const [opening, setOpening] = useState(false);
 
@@ -187,31 +169,20 @@ export default function AffirmButton({
       console.error('Falta VITE_AFFIRM_PUBLIC_KEY');
       return;
     }
+    console.group('[Affirm STATUS]');
+    console.log('Public key len:', PUBLIC_KEY.length);
+    console.log('Public key tail:', PUBLIC_KEY.slice(-6)); // últimos 6 para comparar
+    console.log('Script URL debe ser PROD:', 'https://cdn1.affirm.com/js/v2/affirm.js');
+    console.groupEnd();
+
     loadAffirm(PUBLIC_KEY)
       .then(() => setReady(true))
       .catch(console.error);
   }, []);
 
-  // Normaliza items → payload de Affirm
+  // Normaliza items → payload de Affirm (sin ítems falsos)
   const normalizeItems = (itemsIn?: CartItem[]): any[] => {
-    // When there are no items in the cart we send a single smoke test item.
-    // This ensures the order meets the $50 minimum required by the
-    // MIN_TOTAL_CENTS constant (5000 cents) and prevents validation errors
-    // when the cart is empty.
-    if (!itemsIn?.length) {
-      return [
-        {
-          display_name: 'Smoke test item',
-          sku: 'SMOKE-001',
-          unit_price: 5000, // $50 fallback to satisfy minimum total
-          qty: 1,
-          item_url: window.location.href,
-        },
-      ];
-    }
-
-    // Map real cart items into the format expected by the affirm SDK.
-    // Each value is sanitized to reasonable lengths and fallbacks.
+    if (!itemsIn?.length) return [];
     return itemsIn.map((it, idx) => {
       const name = (it.name || `Item ${idx + 1}`).toString().slice(0, 120);
       const unit_price = Math.round(Number(it.price) * 100);
@@ -226,94 +197,10 @@ export default function AffirmButton({
         unit_price,
         qty,
         item_url: it.url || window.location.href,
-        item_image_url: it.image,
+        image_url: it.image, // ← nombre correcto de campo para Affirm
       };
     });
   };
-
-  /* ---------- Mini-form: identidad REAL (sin John Doe) ---------- */
-  const [c, setC] = useState<Customer>(
-    customer ?? {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      address: {
-        line1: '',
-        line2: '',
-        city: '',
-        state: '',
-        zip: '',
-        country: 'USA',
-      },
-    },
-  );
-
-  // Actualiza campos simples y anidados (address.*)
-  const onChange =
-    (
-      path:
-        | 'firstName'
-        | 'lastName'
-        | 'email'
-        | 'phone'
-        | 'address.line1'
-        | 'address.line2'
-        | 'address.city'
-        | 'address.state'
-        | 'address.zip'
-        | 'address.country',
-    ) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const v = e.target.value;
-      setC((prev) => {
-        const next = { ...prev, address: { ...prev.address } };
-        switch (path) {
-          case 'firstName':
-            next.firstName = v;
-            break;
-          case 'lastName':
-            next.lastName = v;
-            break;
-          case 'email':
-            next.email = v;
-            break;
-          case 'phone':
-            next.phone = v;
-            break;
-          case 'address.line1':
-            next.address.line1 = v;
-            break;
-          case 'address.line2':
-            next.address.line2 = v;
-            break;
-          case 'address.city':
-            next.address.city = v;
-            break;
-          case 'address.state':
-            next.address.state = v.toUpperCase();
-            break;
-          case 'address.zip':
-            next.address.zip = v;
-            break;
-          case 'address.country':
-            next.address.country = v;
-            break;
-        }
-        return next;
-      });
-    };
-
-  // Validación mínima para habilitar el botón
-  const validCustomer =
-    c.firstName.trim().length > 1 &&
-    c.lastName.trim().length > 1 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email) &&
-    /^\d{10,15}$/.test(c.phone) &&
-    c.address.line1.trim().length > 3 &&
-    c.address.city.trim().length > 2 &&
-    /^[A-Z]{2}$/.test(c.address.state) &&
-    /^\d{5}$/.test(c.address.zip);
 
   /* ---------- Callbacks de Affirm ---------- */
   const getAffirmCallbacks = (orderId: string, totalCents: number) => ({
@@ -357,6 +244,9 @@ export default function AffirmButton({
     },
     onValidationError: (err: any) => {
       console.warn('Affirm onValidationError', err);
+      if (err?.fields) {
+        console.table(err.fields);
+      }
       setOpening(false);
       setModal({
         open: true,
@@ -377,6 +267,24 @@ export default function AffirmButton({
     },
   });
 
+  /* ---------- Habilitación del botón (siempre visible) ---------- */
+  const items = normalizeItems(cartItems);
+  const shippingCents = Math.round((Number(shippingUSD) || 0) * 100);
+  const taxCents = Math.round((Number(taxUSD) || 0) * 100);
+  const sumItems = items.reduce((acc, it) => acc + it.unit_price * it.qty, 0);
+  const totalCentsProp = isFiniteNumber(totalUSD)
+    ? Math.round(Number(totalUSD) * 100)
+    : NaN;
+  const totalCents = isFiniteNumber(totalCentsProp)
+    ? totalCentsProp
+    : sumItems + shippingCents + taxCents;
+
+  const canPay =
+    ready &&
+    items.length > 0 &&
+    isFiniteNumber(totalCents) &&
+    totalCents >= MIN_TOTAL_CENTS;
+
   /* ---------- Checkout click ---------- */
   const handleClick = () => {
     const affirm = (window as any).affirm;
@@ -385,80 +293,30 @@ export default function AffirmButton({
       return;
     }
 
-    // 1) Items y montos en centavos
-    const items = normalizeItems(cartItems);
-    let shippingCents = Math.round((Number(shippingUSD) || 0) * 100);
-    let taxCents = Math.round((Number(taxUSD) || 0) * 100);
-
-    // 2) Validación de items
-    const invalids = items.filter(
-      (it) =>
-        !it.display_name ||
-        !isFiniteNumber(it.unit_price) ||
-        it.unit_price <= 0 ||
-        !isFiniteNumber(it.qty) ||
-        it.qty <= 0,
-    );
-    if (invalids.length) {
-      console.warn('Items inválidos para Affirm:', invalids, { items });
-      showToast('error', 'Precio o cantidad inválidos. Revisá el producto.');
+    // Validaciones mínimas
+    if (!items.length) {
+      showToast('error', 'Agregá productos al carrito.');
       return;
     }
-
-    // 3) Totales
-    const sumItems = items.reduce(
-      (acc, it) => acc + it.unit_price * it.qty,
-      0,
-    );
-    const totalCentsProp = isFiniteNumber(totalUSD)
-      ? Math.round(Number(totalUSD) * 100)
-      : NaN;
-    const totalCents = isFiniteNumber(totalCentsProp)
-      ? totalCentsProp
-      : sumItems + shippingCents + taxCents;
-
     if (!isFiniteNumber(totalCents) || totalCents < MIN_TOTAL_CENTS) {
       setModal({
         open: true,
         title: 'Importe no disponible para financiación',
-        body: 'El total es demasiado bajo para Affirm.',
+        body: 'El total es demasiado bajo para Affirm.',
         retry: false,
       });
       return;
     }
 
-    // 4) Payload con identidad REAL
+    // Payload SIN shipping/billing/customer → Affirm pedirá nombre/apellido
     const orderId = 'ORDER-' + Date.now();
-    const checkout = {
+    const checkout: any = {
       merchant: {
         user_confirmation_url: `${window.location.origin}/affirm/confirm.html`,
         user_cancel_url: `${window.location.origin}/affirm/cancel.html`,
         user_confirmation_url_action: 'GET',
-        name: 'ONE WAY MOTORS',
+        name: 'ONE WAY MOTORS',
       },
-      billing: {
-        name: { first: c.firstName, last: c.lastName },
-        address: {
-          line1: c.address.line1,
-          line2: c.address.line2,
-          city: c.address.city,
-          state: c.address.state,
-          zipcode: c.address.zip,
-          country: c.address.country || 'USA',
-        },
-      },
-      shipping: {
-        name: { first: c.firstName, last: c.lastName },
-        address: {
-          line1: c.address.line1,
-          line2: c.address.line2,
-          city: c.address.city,
-          state: c.address.state,
-          zipcode: c.address.zip,
-          country: c.address.country || 'USA',
-        },
-      },
-      customer: { email: c.email, phone_number: c.phone },
       items,
       currency: 'USD',
       shipping_amount: shippingCents,
@@ -468,14 +326,14 @@ export default function AffirmButton({
       metadata: { mode: 'modal' },
     };
 
-    // 5) Logs de verificación
-    console.group('[Affirm][VERIFY one-way]');
+    // Logs de verificación
+    console.group('[Affirm][VERIFY one-way]');
     console.log(
-      'SDK public key  →',
+      'SDK public key →',
       (window as any)._affirm_config?.public_api_key,
     );
-    console.log('confirm URL     →', checkout.merchant.user_confirmation_url);
-    console.log('cancel URL      →', checkout.merchant.user_cancel_url);
+    console.log('confirm URL  →', checkout.merchant.user_confirmation_url);
+    console.log('cancel URL   →', checkout.merchant.user_cancel_url);
     console.table(
       checkout.items.map((it: any) => ({
         display_name: it.display_name,
@@ -489,7 +347,7 @@ export default function AffirmButton({
       checkout.shipping_amount,
       'tax_cents:',
       checkout.tax_amount,
-      'TOTAL cents →',
+      'TOTAL cents →',
       checkout.total,
     );
     console.groupEnd();
@@ -501,121 +359,24 @@ export default function AffirmButton({
       affirm.checkout(checkout);
       affirm.checkout.open(getAffirmCallbacks(orderId, totalCents));
     } catch (e) {
-      console.error('Error al abrir Affirm:', e);
+      console.error('Error al abrir Affirm:', e);
       setOpening(false);
-      showToast('error', 'No se pudo abrir Affirm. Intentá nuevamente.');
+      showToast('error', 'No se pudo abrir Affirm. Intentá nuevamente.');
     }
   };
 
   /* ---------- Render ---------- */
-  if (!ready) {
-    return (
-      <>
-        <button
-          disabled
-          className="bg-gray-600 text-white px-4 py-2 rounded-md"
-        >
-          Cargando Affirm…
-        </button>
-        <Toast
-          show={toast.show}
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast((s) => ({ ...s, show: false }))}
-        />
-        <NiceModal
-          open={modal.open}
-          title={modal.title}
-          onClose={() => setModal({ open: false, title: '', body: '' })}
-          secondaryLabel="Cerrar"
-        >
-          {modal.body}
-        </NiceModal>
-      </>
-    );
-  }
-
   return (
     <>
-      {/* Mini-form con datos reales */}
-      <div className="grid grid-cols-2 gap-2 w-full max-w-md mb-3 text-sm">
-        <input
-          type="text"
-          autoComplete="given-name"
-          className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="First name"
-          value={c.firstName}
-          onChange={onChange('firstName')}
-        />
-        <input
-          type="text"
-          autoComplete="family-name"
-          className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="Last name"
-          value={c.lastName}
-          onChange={onChange('lastName')}
-        />
-        <input
-          type="email"
-          autoComplete="email"
-          className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="Email"
-          value={c.email}
-          onChange={onChange('email')}
-        />
-        <input
-          type="tel"
-          inputMode="numeric"
-          autoComplete="tel"
-          className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="Phone (10–15 digits)"
-          value={c.phone}
-          onChange={onChange('phone')}
-        />
-        <input
-          type="text"
-          autoComplete="address-line1"
-          className="h-8 border border-gray-300 rounded-md px-2 col-span-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="Address"
-          value={c.address.line1}
-          onChange={onChange('address.line1')}
-        />
-        <input
-          type="text"
-          autoComplete="address-level2"
-          className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="City"
-          value={c.address.city}
-          onChange={onChange('address.city')}
-        />
-        <input
-          type="text"
-          autoComplete="address-level1"
-          maxLength={2}
-          className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="State (FL)"
-          value={c.address.state}
-          onChange={onChange('address.state')}
-        />
-        <input
-          type="text"
-          autoComplete="postal-code"
-          maxLength={5}
-          className="h-8 border border-gray-300 rounded-md px-2 focus:ring-1 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500"
-          placeholder="ZIP (5)"
-          value={c.address.zip}
-          onChange={onChange('address.zip')}
-        />
-      </div>
+              <button
+          type="button"
+          onClick={handleClick}
+          disabled={opening}
+          className="h-9 px-3 text-sm rounded-md font-semibold bg-black text-white border border-white/20 shadow hover:bg-neutral-900 transition disabled:opacity-60 w-auto"
+        >
+          {opening ? 'Abriendo…' : 'Pay with Affirm'}
+        </button>
 
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={opening || !validCustomer}
-        className="h-9 px-3 text-sm rounded-md font-semibold bg-black text-white border border-white/20 shadow hover:bg-neutral-900 transition disabled:opacity-60 w-auto"
-      >
-        {opening ? 'Abriendo…' : 'Pay with Affirm'}
-      </button>
 
       <Toast
         show={toast.show}
