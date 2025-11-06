@@ -5,18 +5,47 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pago cancelado</title>
   <style>
+    :root { color-scheme: dark; }
     body{background:#0b0b0b;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial;margin:0;padding:40px}
     .card{max-width:720px;margin:0 auto;background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:24px}
     .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#b91c1c;color:#fff;font-weight:700;font-size:12px}
-    a{color:#38bdf8}
+    .muted{color:#a1a1aa}
+    a{color:#38bdf8;text-decoration:none}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#181818;color:#fff}
+    .btn:hover{background:#202020}
+    .small{font-size:12px;color:#9ca3af}
   </style>
 </head>
 <body>
   <div class="card">
     <div class="tag">Cancelado</div>
     <h1>No se completó el pago con Affirm.</h1>
-    <p>Podés volver a la tienda e intentarlo de nuevo.</p>
-    <p><a href="/">Volver a la tienda</a></p>
+    <p class="muted">Podés volver a la tienda e intentarlo de nuevo.</p>
+
+    <div class="actions">
+      <a class="btn" href="/">Volver a la tienda</a>
+      <button class="btn" id="closeBtn" type="button">Cerrar ventana</button>
+    </div>
+
+    <p class="small">Si esta ventana no se cierra sola, usá el botón “Cerrar ventana” o el enlace para regresar.</p>
   </div>
+
+  <script>
+    (function () {
+      function notifyAndClose() {
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'AFFIRM_CANCEL' }, '*');
+          }
+        } catch (_) {}
+        if (window.opener) window.close();
+      }
+      document.getElementById('closeBtn').addEventListener('click', notifyAndClose);
+      if (window.opener) {
+        setTimeout(notifyAndClose, 2500);
+      }
+    })();
+  </script>
 </body>
 </html>

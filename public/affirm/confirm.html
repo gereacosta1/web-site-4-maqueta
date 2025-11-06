@@ -5,19 +5,65 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pago con Affirm – Confirmado</title>
   <style>
-    body{background:#0b0b0b;color:#fff;font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";margin:0;padding:40px}
+    :root { color-scheme: dark; }
+    body{background:#0b0b0b;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans";margin:0;padding:40px}
     .card{max-width:720px;margin:0 auto;background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:24px}
     .ok{display:inline-block;padding:6px 10px;border-radius:999px;background:#16a34a;color:#fff;font-weight:700;font-size:12px;letter-spacing:.02em}
-    pre{background:#0f0f0f;border:1px solid #272727;border-radius:12px;padding:12px;overflow:auto}
-    a{color:#38bdf8}
+    .muted{color:#a1a1aa}
+    .row{margin:12px 0}
+    a{color:#38bdf8;text-decoration:none}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#181818;color:#fff}
+    .btn:hover{background:#202020}
+    .small{font-size:12px;color:#9ca3af}
   </style>
 </head>
 <body>
   <div class="card">
     <div class="ok">Autorizado</div>
     <h1>Gracias, tu solicitud en Affirm fue enviada.</h1>
-    <p>Podés cerrar esta ventana y volver a la tienda.</p>
-    <p><a href="/">Volver a ONE WAY MOTORS</a></p>
+    <p class="muted">Podés cerrar esta ventana y volver a la tienda.</p>
+
+    <div class="row small" id="orderRow" style="display:none">
+      <strong>Order ID:</strong> <span id="orderId"></span>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="/">Volver a ONE WAY MOTORS</a>
+      <button class="btn" id="closeBtn" type="button">Cerrar ventana</button>
+    </div>
+
+    <p class="small">Si esta ventana no se cierra sola, usá el botón “Cerrar ventana” o el enlace para regresar.</p>
   </div>
+
+  <script>
+    (function () {
+      // Leer ?order_id=... si lo pasás desde tu flujo
+      const q = new URLSearchParams(location.search);
+      const order = q.get('order_id');
+      if (order) {
+        document.getElementById('orderId').textContent = order;
+        document.getElementById('orderRow').style.display = 'block';
+      }
+
+      // Intentar notificar al opener y cerrar (si el modal abre en popup)
+      function notifyAndClose() {
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'AFFIRM_CONFIRM', order_id: order }, '*');
+          }
+        } catch (_) {}
+        // Si estamos embebidos en same-tab, no cerrar
+        if (window.opener) window.close();
+      }
+
+      document.getElementById('closeBtn').addEventListener('click', notifyAndClose);
+
+      // Auto-cerrar a los 2.5s si hay opener (popup)
+      if (window.opener) {
+        setTimeout(notifyAndClose, 2500);
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+   "dev": "vite",
+   "dev:netlify": "netlify dev",            
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+   "preview": "vite preview",
+   "preview:netlify": "netlify dev -c \"vite preview\""
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.8",
@@ -31,5 +33,8 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
     "vite": "^5.4.2"
-  }
+  },
+ "engines": {
+   "node": ">=18 <=22"
+ }
 }
