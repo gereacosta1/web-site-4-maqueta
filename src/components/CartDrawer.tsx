@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useI18n } from '../i18n/I18nProvider';
-import PayWithAffirm from './PayWithAffirm._archive';
+import PayWithAffirm from './PayWithAffirm';
 
 
 const CartDrawer: React.FC = () => {
