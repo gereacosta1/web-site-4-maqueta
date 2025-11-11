@@ -18,12 +18,12 @@ export type Customer = {
   firstName?: string;
   lastName?: string;
   email?: string;
-  phone?: string; // E.164 (+1XXXXXXXXXX) — opcional
+  phone?: string; // E.164 (+1XXXXXXXXXX) — opcional; NO lo enviaremos por defecto
   address?: {
     line1?: string;
     city?: string;
     state?: string;   // "FL"
-    zip?: string;     // "33131"
+    zip?: string;     // "33127"
     country?: string; // "US"
   };
 };
@@ -33,32 +33,31 @@ const toCents = (usd = 0) => Math.round((usd || 0) * 100);
 // Validadores mínimos
 const isUSState  = (v?: string) => !!v && /^[A-Z]{2}$/.test(v.toUpperCase());
 const isUSZip    = (v?: string) => !!v && /^\d{5}(-\d{4})?$/.test(v);
-const isPhoneE164US = (v?: string) => !!v && /^\+1[2-9]\d{9}$/.test(v);
-const isCountryUS   = (v?: string) => (v || '').toUpperCase() === 'US';
+const isCountryUS = (v?: string) => (v || '').toUpperCase() === 'US';
 
-function safeCustomer(c?: Customer) {
-  // Dirección USPS válida para facturación (no shipping). Podés cambiarla por la de tu negocio si querés.
-  const fallbackAddr = {
-    line1:  '100 S Biscayne Blvd',
-    city:   'Miami',
-    state:  'FL',
-    zipcode:'33131',
-    country:'US',
-  };
+// Dirección USPS REAL para cumplir con name+address y abrir el modal
+const FALLBACK_ADDR = {
+  line1:  '297 NW 54th St',
+  city:   'Miami',
+  state:  'FL',
+  zipcode:'33127',
+  country:'US',
+};
+
+function buildNameAndAddress(c?: Customer) {
   const a = c?.address || {};
-  return {
-    first:  (c?.firstName || 'Online').trim(),
-    last:   (c?.lastName  || 'Customer').trim(),
-    email:  (c?.email     || 'orders@onewaymotor.com').trim(),
-    phone:  isPhoneE164US(c?.phone) ? c!.phone! : undefined,
-    address:{
-      line1:  (a.line1   || fallbackAddr.line1).trim(),
-      city:   (a.city    || fallbackAddr.city).trim(),
-      state:   isUSState(a.state)   ? a.state!.trim()   : fallbackAddr.state,
-      zipcode: isUSZip(a.zip)       ? a.zip!.trim()     : fallbackAddr.zipcode,
-      country: isCountryUS(a.country)? a.country!.trim(): fallbackAddr.country,
-    }
+  const name = {
+    first: (c?.firstName || 'Online').trim(),
+    last:  (c?.lastName  || 'Customer').trim(),
   };
+  const addr = {
+    line1:   (a.line1   && a.line1.trim())   || FALLBACK_ADDR.line1,
+    city:    (a.city    && a.city.trim())    || FALLBACK_ADDR.city,
+    state:    isUSState(a.state)   ? a.state!.trim()   : FALLBACK_ADDR.state,
+    zipcode:  isUSZip(a.zip)       ? a.zip!.trim()     : FALLBACK_ADDR.zipcode,
+    country:  isCountryUS(a.country)? a.country!.trim(): FALLBACK_ADDR.country,
+  };
+  return { name, addr };
 }
 
 export function buildAffirmCheckout(
@@ -81,8 +80,8 @@ export function buildAffirmCheckout(
   const subtotalC = mapped.reduce((acc, it) => acc + it.unit_price * it.qty, 0);
   const totalC    = subtotalC + shippingC + taxC;
 
-  // Enviamos SIEMPRE billing (mínimo requerido) y NO enviamos shipping si no tenés datos reales.
-  const u = safeCustomer(customer);
+  // Nombre/dirección válidos para billing y shipping (sin teléfono)
+  const { name, addr } = buildNameAndAddress(customer);
 
   const payload: any = {
     merchant: {
@@ -91,26 +90,17 @@ export function buildAffirmCheckout(
       user_confirmation_url_action: 'GET',
       name: 'ONE WAY MOTORS',
     },
-    billing: {
-      name: { first: u.first, last: u.last },
-      address: {
-        line1:  u.address.line1,
-        city:   u.address.city,
-        state:  u.address.state,
-        zipcode:u.address.zipcode,
-        country:u.address.country,
-      },
-    },
-    // NO mandamos shipping por defecto para evitar validación USPS estricta
+    // Enviamos ambos bloques; shipping = billing
+    billing: { name, address: addr },
+    shipping:{ name, address: addr },
     items: mapped,
     currency: 'USD',
     shipping_amount: shippingC,
     tax_amount: taxC,
     total: totalC,
     metadata: { mode: 'modal' },
-    // Si querés, podés adjuntar email/phone a nivel shipping más adelante
   };
 
-  // Si más adelante recibís datos reales completos y QUERÉS enviar shipping, podés agregarlos acá.
+  // No mandamos phone_number para evitar rechazos; Affirm lo pide en el modal si hace falta.
   return payload;
 }
