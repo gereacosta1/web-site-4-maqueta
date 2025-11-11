@@ -43,8 +43,8 @@ const isFiniteNumber = (n: unknown): n is number =>
 /* ---------- Normalizador teléfono E.164 (US) ---------- */
 function toE164US(input: string): string {
   const digits = String(input || "").replace(/\D/g, "");
-  if (digits.length === 10) return `+1${digits}`;            // 3051234567 -> +13051234567
-  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`; // 13051234567 -> +13051234567
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
   return ""; // inválido
 }
 
@@ -174,12 +174,11 @@ export default function AffirmButton({
   const canPay = ready && items.length > 0 && isFiniteNumber(totalCents) && totalCents >= MIN_TOTAL_CENTS;
 
   // Cliente “fallback” (válido) si no tenés datos reales todavía
-  const FALLBACK_PHONE = customer?.phone || "+1305XXXXXXX"; // ← reemplazá por un móvil real (E.164)
   const fallbackCustomer: Customer = {
     firstName: customer?.firstName || "Edu",
     lastName:  customer?.lastName  || "Abalos",
     email:     customer?.email     || "edu@onewaymotor.com",
-    phone:     FALLBACK_PHONE,
+    phone:     customer?.phone     || "", // si no hay, lo pedirá Affirm
     address: {
       line1:  customer?.address?.line1 || "123 Demo St",
       city:   customer?.address?.city  || "Miami",
@@ -204,21 +203,13 @@ export default function AffirmButton({
       return;
     }
 
-    const phoneE164 = toE164US(fallbackCustomer.phone);
-    if (!phoneE164) {
-      setModal({
-        open: true,
-        title: "Teléfono inválido",
-        body: "Ingresá un celular de EE. UU. en formato +1XXXXXXXXXX.",
-        retry: false,
-      });
-      return;
-    }
+    // si hay teléfono, lo normalizamos; si no, dejamos que Affirm lo pida
+    const phoneE164 = fallbackCustomer.phone ? toE164US(fallbackCustomer.phone) : "";
 
     const orderId = "ORDER-" + Date.now();
     const base = window.location.origin.replace("http://", "https://");
 
-    // ✅ Payload con shipping/billing completos y teléfono E.164
+    // ✅ Payload con shipping/billing; phone_number sólo si es válido
     const checkout: any = {
       merchant: {
         user_confirmation_url: `${base}/affirm/confirm.html`,
@@ -236,7 +227,7 @@ export default function AffirmButton({
           country: fallbackCustomer.address.country,
         },
         email: fallbackCustomer.email,
-        phone_number: phoneE164, // ← normalizado
+        ...(phoneE164 ? { phone_number: phoneE164 } : {}), // ← opcional
       },
       billing: {
         name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
@@ -264,7 +255,7 @@ export default function AffirmButton({
     console.log("cancel:", checkout.merchant.user_cancel_url);
     console.table(items.map((it: any) => ({ name: it.display_name, sku: it.sku, cents: it.unit_price, qty: it.qty })));
     console.log("shipping_cents:", shippingCents, "tax_cents:", taxCents, "TOTAL cents:", totalCents);
-    console.log("phone_e164:", phoneE164);
+    console.log("phone_e164:", phoneE164 || "(omitted)");
     console.groupEnd();
 
     setOpening(true);
@@ -295,7 +286,7 @@ export default function AffirmButton({
         onValidationError: (err: any) => {
           console.warn("onValidationError", err);
           setOpening(false);
-          setModal({ open: true, title: "Datos inválidos", body: "Revisá nombre, dirección y teléfono del comprador.", retry: false });
+          setModal({ open: true, title: "Datos inválidos", body: "Revisá nombre y dirección del comprador.", retry: false });
         },
         onClose: () => {
           setOpening(false);
