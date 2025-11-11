@@ -13,124 +13,81 @@ declare global {
 }
 
 /* ---------- Utils ---------- */
-
-/** CDN según entorno */
-function getAffirmCdn(env: 'prod' | 'sandbox') {
+function cdnFor(env: 'prod' | 'sandbox') {
   return env === 'prod'
     ? 'https://cdn1.affirm.com/js/v2/affirm.js'
     : 'https://cdn1-sandbox.affirm.com/js/v2/affirm.js';
 }
 
-/** Quita cualquier prefijo pk_live_/pk_test_ si viniera en la env */
-function sanitizePublicKey(key: string) {
-  if (!key) return '';
-  return key.replace(/^pk_(live|test)_/i, '');
-}
-
-/** Lee y normaliza el entorno desde VITE_AFFIRM_ENV (default prod) */
 function getEnv(): 'prod' | 'sandbox' {
   const raw = (import.meta as any)?.env?.VITE_AFFIRM_ENV ?? 'prod';
   return String(raw).toLowerCase() === 'sandbox' ? 'sandbox' : 'prod';
 }
 
-/* ---------- Loader con memo ---------- */
-
+/* ---------- Loader ---------- */
 let loadingPromise: Promise<void> | null = null;
 
 /**
- * Carga el SDK de Affirm una sola vez y en el entorno correcto.
- * - Usa VITE_AFFIRM_ENV ('prod' | 'sandbox'), default 'prod'
- * - Limpia scripts previos si no coinciden con el entorno
- * - Evita inyección duplicada
- * - Espera affirm.ui.ready()
+ * Carga el SDK de Affirm una sola vez y espera a `affirm.ui.ready`.
+ * - Usa VITE_AFFIRM_ENV (prod/sandbox)
+ * - Limpia scripts viejos de otro entorno
  */
-export function loadAffirm(publicKey: string): Promise<void> {
-  const cleaned = sanitizePublicKey(publicKey);
-
-  if (!cleaned) {
-    console.error('[Affirm] Falta o es inválida la PUBLIC KEY.');
-    return Promise.resolve(); // no rompemos el flujo, pero no habrá Affirm operativo
-  }
+export function loadAffirm(publicKey: string, env?: 'prod' | 'sandbox'): Promise<void> {
+  const key = (publicKey || '').trim(); // NO eliminar prefijos pk_*
+  if (!key) throw new Error('[Affirm] Falta VITE_AFFIRM_PUBLIC_KEY');
 
   if (loadingPromise) return loadingPromise;
 
   loadingPromise = new Promise<void>((resolve) => {
-    const env = getEnv();
-    const scriptUrl = getAffirmCdn(env);
+    const selectedEnv = env ?? getEnv();
+    const scriptUrl = cdnFor(selectedEnv);
 
-    // 1) Retirar cualquier script v2 de un entorno distinto
-    const all = Array.from(
-      document.querySelectorAll<HTMLScriptElement>('script[src*="affirm.com/js/v2/affirm.js"]')
-    );
-    all.forEach((s) => {
-      if (s.src !== scriptUrl) s.remove();
-    });
+    // Quitar scripts de otro entorno
+    document
+      .querySelectorAll<HTMLScriptElement>('script[src*="affirm.com/js/v2/affirm.js"]')
+      .forEach((s) => {
+        if (s.src !== scriptUrl) s.remove();
+      });
 
-    // 2) Config global SIEMPRE antes de cargar el script
+    // Config global ANTES de cargar script
     window._affirm_config = {
-      public_api_key: 'F8TUN95FN4Q7GH2F',
+      public_api_key: key,
       script: scriptUrl,
       locale: 'en_US',
       country_code: 'US',
     };
 
-    // Helper para resolver cuando el SDK esté listo
-    const finishWhenReady = () => {
+    const finish = () => {
       try {
         if (window.affirm?.ui?.ready) {
           window.affirm.ui.ready(() => resolve());
           return;
         }
-        // Fallback: poll cortito
-        const iv = setInterval(() => {
-          if (window.affirm?.ui?.ready) {
-            clearInterval(iv);
-            window.affirm.ui.ready(() => resolve());
-          }
-        }, 100);
-        // Safety timeout (2.5s)
-        setTimeout(() => {
-          clearInterval(iv);
-          resolve();
-        }, 2500);
-      } catch {
-        resolve();
-      }
+      } catch {}
+      // Fallback por si no expone ui.ready (igual resolvemos)
+      setTimeout(() => resolve(), 500);
     };
 
-    // 3) Si ya hay el script correcto y affirm existe → esperar ready
-    const existing = all.find((s) => s.src === scriptUrl)
-      ?? document.querySelector<HTMLScriptElement>('#affirm-sdk');
+    // Reusar script si ya es el correcto
+    const existing = Array.from(
+      document.querySelectorAll<HTMLScriptElement>('script[src*="affirm.com/js/v2/affirm.js"]')
+    ).find((s) => s.src === scriptUrl);
 
-    if (existing && existing.src === scriptUrl && window.affirm) {
-      finishWhenReady();
+    if (existing && window.affirm) {
+      finish();
       return;
     }
 
-    // 4) Inyectar el script correcto si no está
-    let s = document.querySelector<HTMLScriptElement>('#affirm-sdk');
-    if (s && s.src !== scriptUrl) {
-      s.remove();
-      s = null;
-      (window as any).affirm = undefined; // invalidar instancia previa
-    }
-
-    if (!s) {
-      s = document.createElement('script');
-      s.id = 'affirm-sdk';
-      s.async = true;
-      s.src = scriptUrl;
-      s.onload = finishWhenReady;
-      s.onerror = () => {
-        loadingPromise = null; // permitir reintento
-        console.error('[Affirm] Error al cargar SDK:', scriptUrl);
-        resolve();
-      };
-      document.head.appendChild(s);
-    } else {
-      // Ya existe el script correcto pero aún no expone affirm
-      finishWhenReady();
-    }
+    const s = document.createElement('script');
+    s.id = 'affirm-sdk';
+    s.async = true;
+    s.src = scriptUrl;
+    s.onload = finish;
+    s.onerror = () => {
+      console.error('[Affirm] No se pudo cargar el SDK:', scriptUrl);
+      resolve(); // no bloquear
+    };
+    document.head.appendChild(s);
   });
 
   return loadingPromise;
