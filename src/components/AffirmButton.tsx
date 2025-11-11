@@ -40,6 +40,14 @@ const toCents = (usd = 0) => Math.round((Number(usd) || 0) * 100);
 const isFiniteNumber = (n: unknown): n is number =>
   typeof n === "number" && Number.isFinite(n);
 
+/* ---------- Normalizador teléfono E.164 (US) ---------- */
+function toE164US(input: string): string {
+  const digits = String(input || "").replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;            // 3051234567 -> +13051234567
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`; // 13051234567 -> +13051234567
+  return ""; // inválido
+}
+
 /* ---------------- Toast simple ---------------- */
 function Toast({
   show,
@@ -165,18 +173,19 @@ export default function AffirmButton({
 
   const canPay = ready && items.length > 0 && isFiniteNumber(totalCents) && totalCents >= MIN_TOTAL_CENTS;
 
-  // Cliente “fallback” para pasar validaciones si no tenés datos reales todavía
+  // Cliente “fallback” (válido) si no tenés datos reales todavía
+  const FALLBACK_PHONE = customer?.phone || "+1305XXXXXXX"; // ← reemplazá por un móvil real (E.164)
   const fallbackCustomer: Customer = {
-    firstName: customer?.firstName || "Store",
-    lastName: customer?.lastName || "Customer",
-    email: customer?.email || "customer@example.com",
-    phone: customer?.phone || "3050000000",
+    firstName: customer?.firstName || "Edu",
+    lastName:  customer?.lastName  || "Abalos",
+    email:     customer?.email     || "edu@onewaymotor.com",
+    phone:     FALLBACK_PHONE,
     address: {
-      line1: customer?.address?.line1 || "123 Demo St",
-      city: customer?.address?.city || "Miami",
-      state: customer?.address?.state || "FL",
-      zip: customer?.address?.zip || "33101",
-      country: customer?.address?.country || "USA",
+      line1:  customer?.address?.line1 || "123 Demo St",
+      city:   customer?.address?.city  || "Miami",
+      state:  customer?.address?.state || "FL",
+      zip:    customer?.address?.zip   || "33101",
+      country:customer?.address?.country|| "USA",
     },
   };
 
@@ -195,10 +204,21 @@ export default function AffirmButton({
       return;
     }
 
+    const phoneE164 = toE164US(fallbackCustomer.phone);
+    if (!phoneE164) {
+      setModal({
+        open: true,
+        title: "Teléfono inválido",
+        body: "Ingresá un celular de EE. UU. en formato +1XXXXXXXXXX.",
+        retry: false,
+      });
+      return;
+    }
+
     const orderId = "ORDER-" + Date.now();
     const base = window.location.origin.replace("http://", "https://");
 
-    // ✅ Payload con shipping/billing completos
+    // ✅ Payload con shipping/billing completos y teléfono E.164
     const checkout: any = {
       merchant: {
         user_confirmation_url: `${base}/affirm/confirm.html`,
@@ -216,7 +236,7 @@ export default function AffirmButton({
           country: fallbackCustomer.address.country,
         },
         email: fallbackCustomer.email,
-        phone_number: fallbackCustomer.phone,
+        phone_number: phoneE164, // ← normalizado
       },
       billing: {
         name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
@@ -232,7 +252,7 @@ export default function AffirmButton({
       currency: "USD",
       shipping_amount: shippingCents,
       tax_amount: taxCents,
-      total: totalCents,            // Affirm puede calcularlo, pero lo mandamos igual
+      total: totalCents, // Affirm puede calcularlo, pero lo enviamos igual
       order_id: orderId,
       metadata: { mode: "modal" },
     };
@@ -244,6 +264,7 @@ export default function AffirmButton({
     console.log("cancel:", checkout.merchant.user_cancel_url);
     console.table(items.map((it: any) => ({ name: it.display_name, sku: it.sku, cents: it.unit_price, qty: it.qty })));
     console.log("shipping_cents:", shippingCents, "tax_cents:", taxCents, "TOTAL cents:", totalCents);
+    console.log("phone_e164:", phoneE164);
     console.groupEnd();
 
     setOpening(true);
@@ -274,7 +295,7 @@ export default function AffirmButton({
         onValidationError: (err: any) => {
           console.warn("onValidationError", err);
           setOpening(false);
-          setModal({ open: true, title: "Datos inválidos", body: "Revisá nombre y dirección del comprador.", retry: false });
+          setModal({ open: true, title: "Datos inválidos", body: "Revisá nombre, dirección y teléfono del comprador.", retry: false });
         },
         onClose: () => {
           setOpening(false);
