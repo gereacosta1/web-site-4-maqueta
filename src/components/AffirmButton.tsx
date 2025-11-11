@@ -48,6 +48,23 @@ function toE164US(input: string): string {
   return ""; // inválido
 }
 
+function isUSState(v: string) {
+  return /^[A-Z]{2}$/.test((v || '').toUpperCase());
+}
+function isUSZip(v: string) {
+  return /^\d{5}(-\d{4})?$/.test(v || '');
+}
+function hasFullAddress(c?: Customer) {
+  if (!c) return false;
+  const a = c.address || ({} as Customer['address']);
+  return Boolean(
+    c.firstName && c.lastName &&
+    a.line1 && a.city && isUSState(a.state) && isUSZip(a.zip) &&
+    (a.country || '').toUpperCase() === 'USA'
+  );
+}
+
+
 /* ---------------- Toast simple ---------------- */
 function Toast({
   show,
@@ -175,18 +192,18 @@ export default function AffirmButton({
 
   // Cliente “fallback” (válido) si no tenés datos reales todavía
   const fallbackCustomer: Customer = {
-    firstName: customer?.firstName || "Edu",
-    lastName:  customer?.lastName  || "Abalos",
-    email:     customer?.email     || "edu@onewaymotor.com",
-    phone:     customer?.phone     || "", // si no hay, lo pedirá Affirm
-    address: {
-      line1:  customer?.address?.line1 || "123 Demo St",
-      city:   customer?.address?.city  || "Miami",
-      state:  customer?.address?.state || "FL",
-      zip:    customer?.address?.zip   || "33101",
-      country:customer?.address?.country|| "USA",
-    },
-  };
+  firstName: customer?.firstName || '',
+  lastName:  customer?.lastName  || '',
+  email:     customer?.email     || '',
+  phone:     customer?.phone     || '',
+  address: {
+    line1:  customer?.address?.line1  || '',
+    city:   customer?.address?.city   || '',
+    state:  (customer?.address?.state || '').toUpperCase(),
+    zip:    customer?.address?.zip    || '',
+    country:(customer?.address?.country|| '').toUpperCase(),
+  },
+};
 
   const handleClick = () => {
     const affirm = (window as any).affirm;
@@ -203,50 +220,77 @@ export default function AffirmButton({
       return;
     }
 
-    // si hay teléfono, lo normalizamos; si no, dejamos que Affirm lo pida
-    const phoneE164 = fallbackCustomer.phone ? toE164US(fallbackCustomer.phone) : "";
+   // si hay teléfono, lo normalizamos; si no, dejamos que Affirm lo pida
+const phoneE164 = fallbackCustomer.phone ? toE164US(fallbackCustomer.phone) : "";
 
-    const orderId = "ORDER-" + Date.now();
-    const base = window.location.origin.replace("http://", "https://");
+// Helpers de validación rápida
+const isUSState = (v: string) => /^[A-Z]{2}$/.test((v || "").toUpperCase());
+const isUSZip   = (v: string) => /^\d{5}(-\d{4})?$/.test(v || "");
+const hasFullAddress = (() => {
+  const a = fallbackCustomer.address || ({} as typeof fallbackCustomer.address);
+  return Boolean(
+    fallbackCustomer.firstName &&
+    fallbackCustomer.lastName &&
+    a?.line1 && a?.city && isUSState(a?.state) && isUSZip(a?.zip) &&
+    (a?.country || "").toUpperCase() === "USA"
+  );
+})();
 
-    // ✅ Payload con shipping/billing; phone_number sólo si es válido
-    const checkout: any = {
-      merchant: {
-        user_confirmation_url: `${base}/affirm/confirm.html`,
-        user_cancel_url: `${base}/affirm/cancel.html`,
-        user_confirmation_url_action: "GET",
-        name: "ONE WAY MOTORS",
+const orderId = "ORDER-" + Date.now();
+const base = window.location.origin.replace("http://", "https://");
+
+// Construimos shipping/billing sólo si la dirección pasa validación
+const shipping = hasFullAddress
+  ? {
+      name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
+      address: {
+        line1:  fallbackCustomer.address.line1,
+        city:   fallbackCustomer.address.city,
+        state:  fallbackCustomer.address.state,
+        zipcode:fallbackCustomer.address.zip,
+        country:fallbackCustomer.address.country,
       },
-      shipping: {
-        name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
-        address: {
-          line1: fallbackCustomer.address.line1,
-          city: fallbackCustomer.address.city,
-          state: fallbackCustomer.address.state,
-          zipcode: fallbackCustomer.address.zip,
-          country: fallbackCustomer.address.country,
-        },
-        email: fallbackCustomer.email,
-        ...(phoneE164 ? { phone_number: phoneE164 } : {}), // ← opcional
+      ...(fallbackCustomer.email ? { email: fallbackCustomer.email } : {}),
+      ...(phoneE164 ? { phone_number: phoneE164 } : {}), // opcional
+    }
+  : undefined;
+
+const billing = hasFullAddress
+  ? {
+      name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
+      address: {
+        line1:  fallbackCustomer.address.line1,
+        city:   fallbackCustomer.address.city,
+        state:  fallbackCustomer.address.state,
+        zipcode:fallbackCustomer.address.zip,
+        country:fallbackCustomer.address.country,
       },
-      billing: {
-        name: { first: fallbackCustomer.firstName, last: fallbackCustomer.lastName },
-        address: {
-          line1: fallbackCustomer.address.line1,
-          city: fallbackCustomer.address.city,
-          state: fallbackCustomer.address.state,
-          zipcode: fallbackCustomer.address.zip,
-          country: fallbackCustomer.address.country,
-        },
-      },
-      items,
-      currency: "USD",
-      shipping_amount: shippingCents,
-      tax_amount: taxCents,
-      total: totalCents, // Affirm puede calcularlo, pero lo enviamos igual
-      order_id: orderId,
-      metadata: { mode: "modal" },
-    };
+    }
+  : undefined;
+
+// ✅ Payload: incluye shipping/billing solo si son válidos
+const checkout: any = {
+  merchant: {
+    user_confirmation_url: `${base}/affirm/confirm.html`,
+    user_cancel_url: `${base}/affirm/cancel.html`,
+    user_confirmation_url_action: "GET",
+    name: "ONE WAY MOTORS",
+  },
+  ...(shipping ? { shipping } : {}),
+  ...(billing ? { billing } : {}),
+  items,
+  currency: "USD",
+  shipping_amount: shippingCents,
+  tax_amount: taxCents,
+  total: totalCents, // Affirm puede calcularlo, pero lo enviamos igual
+  order_id: orderId,
+  metadata: { mode: "modal" },
+};
+
+// Log útil:
+console.log("addr_valid:", hasFullAddress, "phone_e164:", phoneE164 || "(omitted)");
+
+
 
     // Logs de verificación
     console.group("[Affirm][VERIFY]");
