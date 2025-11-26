@@ -1,8 +1,10 @@
+// src/components/CartDrawer.tsx
 import React from 'react';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useI18n } from '../i18n/I18nProvider';
 import PayWithAffirm from './PayWithAffirm';
+import PayWithCard from './PayWithCard';
 
 
 const CartDrawer: React.FC = () => {
@@ -99,39 +101,55 @@ const CartDrawer: React.FC = () => {
           )}
         </div>
 
-        {/* footer */}
+                {/* footer */}
         <div className="p-4 border-t border-white/10 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-white/80">{t('cart.total')}</span>
             <span className="text-xl font-black">{fmtMoney(Number(totalUSD) || 0)}</span>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={clear}
-              disabled={!items.length}
-              className="flex-1 bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-lg font-bold disabled:opacity-50"
-            >
-              {t('cart.clear')}
-            </button>
+          {/* Botones de acciones */}
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={clear}
+                disabled={!items.length}
+                className="flex-1 bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-lg font-bold disabled:opacity-50"
+              >
+                {t('cart.clear')}
+              </button>
 
-            {/* Affirm con datos reales (nuevo botón) */}
-            <div className="flex-1">
+              {/* Affirm con datos reales (botón existente) */}
+              <div className="flex-1">
+                {items.length && totalUSD > 0 ? (
+                  <PayWithAffirm />
+                ) : (
+                  <button
+                    disabled
+                    className="w-full bg-white/10 text-white px-4 py-3 rounded-lg font-bold opacity-50 cursor-not-allowed"
+                  >
+                    {t('cart.payWithAffirm')}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* NUEVO: pago con tarjeta crédito/débito */}
+            <div>
               {items.length && totalUSD > 0 ? (
-                <PayWithAffirm />
+                <PayWithCard />
               ) : (
                 <button
                   disabled
-                  className="w-full bg-white/10 text-white px-4 py-3 rounded-lg font-bold opacity-50 cursor-not-allowed"
+                  className="w-full bg-white text-black px-4 py-3 rounded-lg font-bold opacity-50 cursor-not-allowed"
                 >
-                  {t('cart.payWithAffirm')}
+                  Pagar con tarjeta (crédito/débito)
                 </button>
               )}
             </div>
-
-
           </div>
         </div>
+
       </aside>
     </div>
   );
