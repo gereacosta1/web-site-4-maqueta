@@ -16,6 +16,12 @@
   to = "/.netlify/functions/affirm-authorize"
   status = 200
 
+  # ✅ NUEVO: proxy para pago con tarjeta (Stripe Checkout)
+[[redirects]]
+  from = "/api/card-checkout"
+  to = "/.netlify/functions/card-checkout"
+  status = 200
+
 # Catch-all del SPA (mantener al final)
 [[redirects]]
   from = "/*"

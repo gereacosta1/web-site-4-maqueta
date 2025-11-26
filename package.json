@@ -4,18 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-   "dev": "vite",
-   "dev:netlify": "netlify dev",            
+    "dev": "vite",
+    "dev:netlify": "netlify dev",
     "build": "vite build",
     "lint": "eslint .",
-   "preview": "vite preview",
-   "preview:netlify": "netlify dev -c \"vite preview\""
+    "preview": "vite preview",
+    "preview:netlify": "netlify dev -c \"vite preview\""
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.8",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "stripe": "^20.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -34,7 +35,7 @@
     "typescript-eslint": "^8.3.0",
     "vite": "^5.4.2"
   },
- "engines": {
-   "node": ">=18 <=22"
- }
+  "engines": {
+    "node": ">=18 <=22"
+  }
 }
