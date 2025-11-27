@@ -49,8 +49,6 @@ export async function handler(event) {
       return json(400, { error: 'items array required' });
     }
 
-    // Cada item viene del CartContext:
-    // { id, name, price, qty, ... }
     const line_items = items.map((it, index) => {
       const name = (it.name || `Item ${index + 1}`).toString().slice(0, 120);
       const unitAmount = Math.round(Number(it.price || 0) * 100);
@@ -59,9 +57,7 @@ export async function handler(event) {
       return {
         price_data: {
           currency: 'usd',
-          product_data: {
-            name,
-          },
+          product_data: { name },
           unit_amount: unitAmount,
         },
         quantity: qty,
@@ -80,8 +76,17 @@ export async function handler(event) {
 
     return json(200, { ok: true, url: session.url });
   } catch (err) {
+    // ⬇️ AHORA vemos el error real de Stripe en el frontend y en logs
     console.error('[card-checkout] error', err);
-    return json(500, { error: 'server_error' });
+
+    const msg =
+      (err && err.message) ||
+      (err && err.raw && err.raw.message) ||
+      'server_error';
+
+    const code = err && (err.code || (err.raw && err.raw.code));
+
+    return json(500, { error: msg, code: code || null });
   }
 }
 
