@@ -34,6 +34,7 @@ export async function handler(event) {
   }
 
   try {
+    console.log('[stripe key prefix]', stripeSecret?.slice(0, 8), '...len=', stripeSecret?.length);
     if (!stripe) {
       return json(500, { error: 'Missing STRIPE_SECRET_KEY env var' });
     }
