@@ -33,7 +33,7 @@ const PayWithCard: React.FC = () => {
         disabled={loading || !items.length}
         className="w-full rounded-md bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? 'Redirigiendo a pago con tarjeta…' : 'Pagar con tarjeta (crédito/débito)'}
+        {loading ? 'Redirigiendo a pago con tarjeta…' : 'Pay by card (credit/debit)'}
       </button>
       <p className="text-xs text-slate-500">
         Total: <span className="font-semibold">${totalUSD.toFixed(2)} USD</span>
