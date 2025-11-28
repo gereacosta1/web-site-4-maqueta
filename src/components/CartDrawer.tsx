@@ -143,7 +143,7 @@ const CartDrawer: React.FC = () => {
                   disabled
                   className="w-full bg-white text-black px-4 py-3 rounded-lg font-bold opacity-50 cursor-not-allowed"
                 >
-                  Pagar con tarjeta (crédito/débito)
+                  Pay by card (credit/debit)
                 </button>
               )}
             </div>
