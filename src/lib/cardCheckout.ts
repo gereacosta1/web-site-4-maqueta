@@ -5,7 +5,7 @@ const API_URL = '/api/card-checkout';
 
 export async function startCardCheckout(items: CartItem[]): Promise<void> {
   if (!items.length) {
-    throw new Error('El carrito está vacío');
+    throw new Error('The shopping cart is empty.');
   }
 
   const origin = window.location.origin;
@@ -19,12 +19,12 @@ export async function startCardCheckout(items: CartItem[]): Promise<void> {
   if (!res.ok) {
     const text = await res.text();
     console.error('[card-checkout] error body:', text);
-    throw new Error('No se pudo iniciar el pago con tarjeta');
+    throw new Error('The card payment could not be initiated.');
   }
 
   const data = await res.json();
   if (!data.url) {
-    throw new Error('La respuesta de Stripe no trajo URL');
+    throw new Error('Stripe response did not include a URL.');
   }
 
   // Redirige al checkout de Stripe
